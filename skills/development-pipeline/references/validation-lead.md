@@ -5,7 +5,6 @@ tools: Task, Read, Glob, Grep, Bash, TodoWrite
 model: sonnet
 color: amber
 config: teams.yaml
-expertise: claude/expertise/development-pipeline/validation-lead.md
 ---
 
 ## Boot Sequence

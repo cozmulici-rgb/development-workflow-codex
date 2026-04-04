@@ -1,77 +1,135 @@
-# Development Pipeline Codex Plugin
+# Development Pipeline for Codex
 
-This repository is a Codex plugin repo for an orchestrator-led `development-pipeline` skill set.
+`development-pipeline` is a Codex plugin that brings a structured delivery workflow to Codex. It is designed for teams that want clear phase boundaries, explicit handoffs, and repeatable engineering discipline instead of an informal prompt-to-code loop.
 
-## What is included
+The plugin provides an orchestrator-led flow across research, design, planning, implementation, and validation, with human approval points between phases.
 
-- `skills/development-pipeline-orchestrator/` contains the single user-facing orchestrator entrypoint
-- `skills/development-pipeline/` contains the packaged workflow bundle, role references, and `agents/openai.yaml`
-- `skills/development-pipeline-research/`, `skills/development-pipeline-design/`, `skills/development-pipeline-plan/`, and `skills/development-pipeline-implement/` expose phase-specific entrypoint skills
-- `skills/development-pipeline-validation/` exposes the validation-team entrypoint
-- `skills/development-pipeline-shared-orchestrator/`, `skills/development-pipeline-shared-worker/`, and `skills/development-pipeline-shared-reviewer/` package the shared runtime contracts used by leads, workers, and reviewers
-- `.codex-plugin/plugin.json` defines the plugin manifest used by Codex
-- `.agents/plugins/marketplace.json` exposes the repo as a local marketplace plugin
-- `docs/claude-to-codex-integration.md` documents how the upstream Claude implementation maps into Codex
+## Overview
 
-The Codex version in this repository keeps the portable parts:
+Use this plugin when you want Codex to:
 
-- top-level orchestrator routing across planning, engineering, and validation
-- four-phase workflow and human gates
-- packaged shared behavior for orchestrators, workers, and reviewers
-- role-specific reference prompts
-- reviewer and tester guidance
-- a plugin manifest plus skill packaging
+- turn a feature request into research, design, planning, and implementation artifacts
+- keep code changes aligned to an approved phase plan
+- separate planning, engineering, and validation responsibilities
+- produce structured handoffs that are easier to review and validate
 
-It includes the upstream prompt and config files for alignment. The Claude phase entrypoints are represented here as Codex extra skills instead of slash commands. Claude-only mechanics such as `teams.yaml`-driven runtime injection, expertise persistence, and the pre-tool domain-lock hook are still not replicated verbatim.
+It is best suited to larger or higher-discipline work where consistency and reviewability matter.
 
-## Local install
+## Included Skills
 
-From Codex, add this repo as a local marketplace and install `development-pipeline` from it. Start from `development-pipeline-orchestrator` when you want the full packaged workflow through a single entrypoint.
+The plugin ships the following Codex skills:
 
-## Team model
+- `development-pipeline-orchestrator`: the main user-facing entrypoint
+- `development-pipeline`: the packaged workflow bundle and shared references
+- `development-pipeline-research`: research-stage entrypoint
+- `development-pipeline-design`: design-stage entrypoint
+- `development-pipeline-plan`: planning-stage entrypoint
+- `development-pipeline-implement`: engineering-stage entrypoint
+- `development-pipeline-validation`: validation-stage entrypoint
+- `development-pipeline-shared-orchestrator`: shared contract for orchestrators and leads
+- `development-pipeline-shared-worker`: shared contract for execution workers
+- `development-pipeline-shared-reviewer`: shared contract for reviewers
 
-The packaged workflow exposes this top-level routing model:
+Supporting repository assets include:
 
-- orchestrator: `development-pipeline-orchestrator`
-- planning team: research, design, and plan stages
-- engineering team: implement lead plus coder
-- validation team: validation lead, reviewers, and tester
+- `.codex-plugin/plugin.json`: Codex plugin manifest
+- `.agents/plugins/marketplace.json`: local marketplace metadata
+- `docs/`: workflow references and contributor documentation
+- `scripts/`: repo-local validation, packaging, and write-boundary tooling
 
-Engineering now owns coding plus automated gates, then hands each completed phase to the validation team. Validation coordinates reviewers and tester through a dedicated entrypoint and returns a consolidated pass/fail verdict plus fix checklist.
+## Workflow Model
 
-The authoritative shared behavior contracts are now:
+The workflow is organized around three top-level responsibilities:
 
-- `development-pipeline-shared-orchestrator` for orchestrators and leads
-- `development-pipeline-shared-worker` for execution workers and tester-style reporting
-- `development-pipeline-shared-reviewer` for actionable review output
+- Planning: research, design, and plan creation
+- Engineering: implementation against an approved phase plan
+- Validation: review and testing after engineering completes a phase
 
-## Memory And Sessions
+For most users, the correct starting point is `development-pipeline-orchestrator`. That skill acts as the primary entrypoint and routes work to the appropriate stage.
 
-Persistent per-agent memory is out of scope for this plugin. Packaged prompts should use the current conversation plus explicit repo artifacts as their context source, not hidden expertise files or implied session logs.
+## Installation
 
-The workflow guarantees only explicit artifacts such as:
+Install this repository as a local Codex plugin, then enable `development-pipeline` in your Codex environment.
 
-- research, design, and plan docs under `docs/`
-- generated boundary policy files
-- implementation handoff packages described by the references
-- validation verdicts and fix checklists in the active session
+The repository already includes the required plugin metadata:
 
-Optional local logs may exist in the surrounding environment, but they are not part of the plugin contract. The repository-wide convention is documented in `docs/codex-agent-memory-and-sessions.md`.
+- `.codex-plugin/plugin.json`
+- `.agents/plugins/marketplace.json`
 
-## Local maintenance
+If your Codex setup uses a local marketplace, point it at this repository and install the plugin from that local source.
 
-- `make test` runs the standard-library `unittest` suite for the repo scripts
-- `make validate` checks the plugin manifest, marketplace metadata, and skill frontmatter
-- `make package` validates the repo and writes a versioned zip archive to `dist/`
-- `make boundary-check POLICY=docs/plan/<feature>/boundary.phase-XX.json` verifies current Git changes against a write-boundary policy
-- `make boundary-generate PLAN_DIR=docs/plan/<feature>` generates `boundary.phase-XX.json` files from phase docs
+## Recommended Usage
 
-Both commands use only the Python 3 standard library.
+For most work, start with the orchestrator skill and describe the desired outcome:
 
-## Next steps
+```text
+Use the development-pipeline-orchestrator skill to take this feature through research, design, planning, implementation, and validation.
+```
 
-If you want to evolve the plugin further, the most valuable additions are:
+You can also invoke stage-specific skills directly when you already know which phase you need:
 
-1. harden the boundary guard further around staged-only verification and stale-policy detection
-2. simplify or remove remaining Claude-source metadata that is still carried only for reference
-3. refine policy generation for broader real-plan conventions such as docs-only or migration-heavy phases
+- `development-pipeline-research` for discovery and requirements clarification
+- `development-pipeline-design` for technical design and implementation approach
+- `development-pipeline-plan` for explicit phase plans and file-level scope
+- `development-pipeline-implement` when a phase plan is approved and coding can begin
+- `development-pipeline-validation` for post-implementation review and test coordination
+
+## Runtime Assumptions
+
+This plugin is Codex-native. It does not assume hidden runtime features that the repository does not ship.
+
+Specifically:
+
+- it does not depend on persistent per-agent expertise files
+- it does not assume guaranteed session-log paths
+- it does not implement Claude-style pre-write hook enforcement
+
+The workflow relies on explicit repository artifacts and current conversation context. The authoritative description of these assumptions lives in `docs/codex-agent-memory-and-sessions.md`.
+
+## Write-Boundary Tooling
+
+The repository includes optional write-boundary tooling for implementation phases:
+
+- `make boundary-generate PLAN_DIR=docs/plan/<feature>` generates boundary policy files from phase plans
+- `make boundary-check POLICY=docs/plan/<feature>/boundary.phase-XX.json` verifies current Git changes against a boundary policy
+
+Direct script entrypoints are also available:
+
+- `python3 scripts/generate_boundary_policy.py <plan-dir>`
+- `python3 scripts/write_boundary_guard.py start --policy <path>`
+- `python3 scripts/write_boundary_guard.py verify --policy <path>`
+- `python3 scripts/write_boundary_guard.py report --policy <path>`
+- `python3 scripts/write_boundary_guard.py stage --policy <path> -- <files...>`
+
+More detail is documented in `docs/codex-write-boundary-guard.md`.
+
+## Maintainer Commands
+
+If you are developing or maintaining this plugin:
+
+- `make validate` checks plugin metadata, marketplace wiring, and skill frontmatter
+- `make test` runs the repository test suite
+- `make package` validates the repo and builds a zip archive in `dist/`
+
+The maintenance scripts use the Python 3 standard library only.
+
+## Repository Layout
+
+- `skills/`: packaged Codex skills
+- `.codex-plugin/`: plugin manifest
+- `.agents/plugins/`: local plugin marketplace metadata
+- `scripts/`: validation, packaging, and boundary scripts
+- `docs/`: workflow and contributor documentation
+
+## Limitations
+
+This plugin provides workflow guidance and packaged prompts. It does not, by itself:
+
+- guarantee that every Codex environment supports identical plugin installation flows
+- provide persistent memory across sessions
+- enforce pre-write filesystem hooks
+- replace human approval for important design or implementation decisions
+
+## License
+
+This repository is licensed under MIT. See `LICENSE`.

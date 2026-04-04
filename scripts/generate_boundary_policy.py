@@ -11,8 +11,6 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_ALLOWED_WRITE_GLOBS = ["src/**", "tests/**", "config/**"]
-DEFAULT_BLOCKED_WRITE_GLOBS = ["docs/**", "skills/**", ".codex-plugin/**", ".agents/**"]
 PHASE_FILE_RE = re.compile(r"^phase-\d+\.md$")
 SECTION_RE = re.compile(r"^##\s+(.+?)\s*$", re.MULTILINE)
 INLINE_CODE_RE = re.compile(r"`([^`]+)`")
@@ -78,18 +76,35 @@ def derive_feature_name(plan_dir: Path) -> str:
     return plan_dir.name
 
 
+def derive_write_globs(paths: list[str]) -> list[str]:
+    globs: list[str] = []
+    for raw_path in paths:
+        path = Path(raw_path)
+        parts = path.parts
+        if not parts:
+            continue
+        if len(parts) == 1:
+            candidate = parts[0]
+        else:
+            candidate = f"{parts[0]}/**"
+        if candidate not in globs:
+            globs.append(candidate)
+    return globs
+
+
 def generate_policy(phase_path: Path, mode: str, require_clean_git_start: bool) -> dict:
     relative_phase = phase_path.relative_to(ROOT)
     plan_dir = phase_path.parent
+    allowed_touched_files = extract_phase_paths(phase_path)
     return {
         "version": 1,
         "role": "implement-coder",
         "phase": phase_path.stem,
         "feature": derive_feature_name(plan_dir),
         "mode": mode,
-        "allowed_write_globs": DEFAULT_ALLOWED_WRITE_GLOBS,
-        "blocked_write_globs": DEFAULT_BLOCKED_WRITE_GLOBS,
-        "allowed_touched_files": extract_phase_paths(phase_path),
+        "allowed_write_globs": derive_write_globs(allowed_touched_files),
+        "blocked_write_globs": [],
+        "allowed_touched_files": allowed_touched_files,
         "allow_new_files": True,
         "require_clean_git_start": require_clean_git_start,
         "_generated_from": relative_phase.as_posix(),

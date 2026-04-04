@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
@@ -38,11 +39,17 @@ def relative_to_root(path: Path) -> str:
     return path.resolve().relative_to(ROOT).as_posix()
 
 
+def is_runtime_state_path(path: str) -> bool:
+    state_root = relative_to_root(STATE_DIR)
+    return path == state_root or path.startswith(f"{state_root}/")
+
+
 def load_policy(policy_path: Path) -> dict[str, Any]:
     resolved = policy_path.resolve()
     if not resolved.is_file():
         raise ValueError(f"Missing policy file: {policy_path}")
-    if ROOT not in resolved.parents:
+    root = ROOT.resolve()
+    if root not in resolved.parents:
         raise ValueError(f"Policy path resolves outside repo: {policy_path}")
     try:
         policy = json.loads(resolved.read_text(encoding="utf-8"))
@@ -73,34 +80,55 @@ def validate_policy(policy: dict[str, Any], label: str) -> None:
 
 def collect_changes() -> list[Change]:
     changes: dict[tuple[str, bool], Change] = {}
-    for staged, args in (
-        (False, ["status", "--porcelain", "--untracked-files=all"]),
-        (True, ["diff", "--cached", "--name-status"]),
-    ):
-        result = run_git(*args)
-        if result.returncode != 0:
-            raise RuntimeError(result.stderr.strip() or f"git {' '.join(args)} failed")
-        if staged:
-            for raw_line in result.stdout.splitlines():
-                line = raw_line.strip()
-                if not line:
-                    continue
-                parts = line.split("\t")
-                status = parts[0]
-                path = parts[-1]
-                changes[(path, True)] = Change(path=path, staged=True, status=status)
-        else:
-            for raw_line in result.stdout.splitlines():
-                if not raw_line:
-                    continue
-                status = raw_line[:2]
-                path = raw_line[3:]
-                if " -> " in path:
-                    path = path.split(" -> ", 1)[1]
-                if status[0] != " ":
-                    changes[(path, True)] = Change(path=path, staged=True, status=status[0])
-                if status[1] != " ":
-                    changes[(path, False)] = Change(path=path, staged=False, status=status[1])
+
+    status_result = run_git("status", "--porcelain", "--untracked-files=all")
+    if status_result.returncode != 0:
+        raise RuntimeError(status_result.stderr.strip() or "git status --porcelain --untracked-files=all failed")
+
+    for raw_line in status_result.stdout.splitlines():
+        if not raw_line:
+            continue
+        status = raw_line[:2]
+        path = raw_line[3:]
+        if is_runtime_state_path(path):
+            continue
+        if status == "??":
+            changes[(path, False)] = Change(path=path, staged=False, status="??")
+            continue
+        if " -> " in path:
+            old_path, new_path = path.split(" -> ", 1)
+            if status[0] != " ":
+                changes[(old_path, True)] = Change(path=old_path, staged=True, status="D")
+                changes[(new_path, True)] = Change(path=new_path, staged=True, status="A")
+            if status[1] != " ":
+                changes[(old_path, False)] = Change(path=old_path, staged=False, status="D")
+                changes[(new_path, False)] = Change(path=new_path, staged=False, status="A")
+            continue
+        if status[0] != " ":
+            changes[(path, True)] = Change(path=path, staged=True, status=status[0])
+        if status[1] != " ":
+            changes[(path, False)] = Change(path=path, staged=False, status=status[1])
+
+    cached_result = run_git("diff", "--cached", "--name-status")
+    if cached_result.returncode != 0:
+        raise RuntimeError(cached_result.stderr.strip() or "git diff --cached --name-status failed")
+    for raw_line in cached_result.stdout.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        parts = line.split("\t")
+        status = parts[0]
+        if status.startswith("R") and len(parts) >= 3:
+            if not is_runtime_state_path(parts[1]):
+                changes[(parts[1], True)] = Change(path=parts[1], staged=True, status="D")
+            if not is_runtime_state_path(parts[2]):
+                changes[(parts[2], True)] = Change(path=parts[2], staged=True, status="A")
+            continue
+        path = parts[-1]
+        if is_runtime_state_path(path):
+            continue
+        normalized_status = status[0] if status else status
+        changes[(path, True)] = Change(path=path, staged=True, status=normalized_status)
     return sorted(changes.values(), key=lambda item: (item.path, item.staged))
 
 
@@ -111,6 +139,38 @@ def matches_any(path: str, patterns: list[str]) -> bool:
 
 def changed_paths(changes: list[Change]) -> list[str]:
     return sorted({change.path for change in changes})
+
+
+def file_signature(path: str) -> str:
+    candidate = ROOT / path
+    if not candidate.exists():
+        return "<missing>"
+    if candidate.is_dir():
+        return "<dir>"
+    digest = hashlib.sha256()
+    with candidate.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(65536), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def snapshot_change_map(changes: list[Change]) -> dict[str, list[dict[str, str | bool]]]:
+    snapshot: dict[str, list[dict[str, str | bool]]] = {}
+    for change in changes:
+        snapshot.setdefault(change.path, []).append(
+            {
+                "staged": change.staged,
+                "status": change.status,
+                "signature": file_signature(change.path),
+            }
+        )
+    for entries in snapshot.values():
+        entries.sort(key=lambda item: (str(item["staged"]), str(item["status"])))
+    return snapshot
+
+
+def state_matches_policy(state: dict[str, Any], policy: dict[str, Any]) -> bool:
+    return bool(state) and state.get("policy_path") == policy["_path"]
 
 
 def current_branch() -> str:
@@ -152,11 +212,20 @@ def verify_policy(policy: dict[str, Any]) -> tuple[bool, list[str]]:
     allow_new = policy.get("allow_new_files", True)
 
     state = load_state()
-    baseline_paths = set(state.get("baseline_dirty_paths", [])) if state.get("policy_path") == policy["_path"] else set()
-    effective_changed = [path for path in changed if path not in baseline_paths]
+    matching_state = state if state_matches_policy(state, policy) else {}
+    baseline_snapshot = matching_state.get("baseline_changes", {})
+    current_snapshot = snapshot_change_map(changes)
+    effective_changed = [
+        path
+        for path in changed
+        if current_snapshot.get(path, []) != baseline_snapshot.get(path, [])
+    ]
 
-    if policy.get("require_clean_git_start") and not state and changed:
-        violations.append("policy requires a clean git start; run 'start' before making changes")
+    if policy.get("require_clean_git_start") and not matching_state:
+        if changed:
+            violations.append("policy requires a clean git start for this policy; run 'start' before making changes")
+        else:
+            violations.append("policy requires a clean git start for this policy; run 'start' before verification")
 
     for path in effective_changed:
         if blocked_globs and matches_any(path, blocked_globs):
@@ -191,6 +260,7 @@ def cmd_start(args: argparse.Namespace) -> int:
             "branch": current_branch(),
             "policy_path": policy["_path"],
             "baseline_dirty_paths": dirty_paths,
+            "baseline_changes": snapshot_change_map(collect_changes()),
         }
     )
     print(f"Started boundary session for {policy['_path']}")

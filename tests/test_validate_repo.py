@@ -190,6 +190,7 @@ class ValidateRepoTests(unittest.TestCase):
         self.assertIn("development-pipeline-validation", workflow_readme)
         self.assertIn("name: development-pipeline-validation", validation_skill)
         self.assertIn("name: validation-lead", validation_lead)
+        self.assertNotIn("expertise:", validation_lead)
 
     def test_shared_codex_native_workflow_assets_exist_and_validate(self) -> None:
         shared_skills = {

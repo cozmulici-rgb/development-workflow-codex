@@ -1,0 +1,27 @@
+{
+  "allow_new_files": true,
+  "allowed_touched_files": [
+    "skills/development-pipeline-orchestrator/SKILL.md",
+    "skills/development-pipeline/SKILL.md",
+    "skills/development-pipeline/references/README.md",
+    "skills/development-pipeline/references/teams.yaml",
+    ".codex-plugin/plugin.json",
+    ".agents/plugins/marketplace.json",
+    "README.md",
+    "tests/test_validate_repo.py"
+  ],
+  "allowed_write_globs": [
+    "skills/**",
+    ".codex-plugin/**",
+    ".agents/**",
+    "README.md",
+    "tests/**"
+  ],
+  "blocked_write_globs": [],
+  "feature": "orchestrator-workflow-alignment",
+  "mode": "enforce",
+  "phase": "phase-01",
+  "require_clean_git_start": false,
+  "role": "implement-coder",
+  "version": 1
+}

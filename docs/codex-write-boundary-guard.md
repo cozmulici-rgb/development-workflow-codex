@@ -47,19 +47,19 @@ Suggested shape:
   "feature": "payment-failure-notification",
   "mode": "enforce",
   "allowed_write_globs": [
-    "src/**",
-    "tests/**",
-    "config/**"
-  ],
-  "blocked_write_globs": [
-    "docs/**",
     "skills/**",
     ".codex-plugin/**",
-    ".agents/**"
+    ".agents/**",
+    "README.md",
+    "tests/**"
   ],
+  "blocked_write_globs": [],
   "allowed_touched_files": [
-    "src/notifications/payment_failure.py",
-    "tests/test_payment_failure.py"
+    "skills/development-pipeline-orchestrator/SKILL.md",
+    ".codex-plugin/plugin.json",
+    ".agents/plugins/marketplace.json",
+    "README.md",
+    "tests/test_validate_repo.py"
   ],
   "allow_new_files": true,
   "require_clean_git_start": true
@@ -82,8 +82,7 @@ This dual check matters because path-only controls are too broad in implementati
 The verifier records a baseline at task start:
 
 - current branch
-- current `git status --porcelain`
-- current `git diff --name-only`
+- current changed-path status snapshot
 
 If `require_clean_git_start` is true, the task must start from a clean worktree or from a known allowlisted dirty set explicitly recorded in the session file.
 
@@ -102,6 +101,7 @@ Before any review or commit, the lead runs a verification command that checks:
 - whether each changed path is within `allowed_write_globs`
 - whether any changed path matches `blocked_write_globs`
 - whether the changed set exceeds `allowed_touched_files`
+- whether any file that was already dirty at `start` changed further during the guarded session
 
 For read-only roles such as reviewers and testers, the allowed write set is empty. Any changed file is a violation.
 
@@ -142,7 +142,7 @@ Role: implement-coder
 
 Changed files outside allowed scope:
 - docs/design/payment-failure-notification/sequence.md
-  reason: matches blocked_write_globs "docs/**"
+  reason: outside allowed_write_globs
 
 Changed files outside approved phase file list:
 - src/billing/refunds.py

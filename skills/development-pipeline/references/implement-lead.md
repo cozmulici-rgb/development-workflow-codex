@@ -5,14 +5,13 @@ tools: Task, Read, Write, Glob, Grep, Bash, TodoWrite
 model: sonnet
 color: orange
 config: teams.yaml
-expertise: claude/expertise/development-pipeline/implement-lead.md
 ---
 
 ## Boot Sequence
 
-1. Read your expertise file at `claude/expertise/development-pipeline/implement-lead.md` to load accumulated knowledge
-2. Read conversation context and any prior agent outputs relevant to your task
-3. Proceed with your task instructions below
+1. Read the current conversation plus the approved plan, design, and research artifacts for the feature.
+2. Use `../../../docs/codex-agent-memory-and-sessions.md` as the runtime contract for memory and session assumptions.
+3. Proceed with your task instructions below.
 
 ## Domain Boundaries
 

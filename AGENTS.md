@@ -9,6 +9,8 @@ This repository packages a Codex plugin and its skill assets. Current top-level 
 - `scripts/` for repo-local validation and packaging helpers
 - `docs/` for contributor-facing documentation
 
+The packaged workflow documents its Codex-native runtime assumptions in `docs/codex-agent-memory-and-sessions.md`. Keep prompt-level claims about memory, handoffs, and session artifacts aligned with that document.
+
 Use small, focused modules and keep validation or packaging logic in standalone scripts rather than scattering it across ad hoc shell snippets.
 
 ## Build, Test, and Development Commands
@@ -16,6 +18,7 @@ The repository now provides local Make targets for the core maintenance workflow
 
 - `make validate` runs `scripts/validate_repo.py` to check plugin metadata, marketplace wiring, and skill frontmatter
 - `make package` runs validation and builds a zip archive in `dist/`
+- `make test` runs `python3 -m unittest discover -s tests -t .` for the repo-maintenance script suite
 - `make boundary-check POLICY=<path>` runs `scripts/write_boundary_guard.py verify` against a boundary policy file
 - `make boundary-generate PLAN_DIR=<path>` runs `scripts/generate_boundary_policy.py` to derive policy files from phase plans
 - `python3 scripts/validate_repo.py` is the direct entry point when you want script output without `make`
@@ -37,7 +40,7 @@ Use consistent, idiomatic style for the language you introduce. Default expectat
 Adopt an automatic formatter and linter with the first major code addition and commit their config with the codebase.
 
 ## Testing Guidelines
-No separate test framework is configured yet. For repo-maintenance changes, run `make validate` and, when packaging changes are involved, `make package`. Add automated tests with the first feature that justifies a broader test harness; do not rely on manual checks alone.
+Use the standard-library `unittest` suite for repo-maintenance code. Run `make test` for script changes, `make validate` for plugin metadata or packaged-skill checks, and `make package` when packaging behavior changes. Do not rely on manual checks alone for script behavior.
 
 ## Commit & Pull Request Guidelines
 The current Git history contains a single commit: `Initial commit`. Follow that baseline with short, imperative commit subjects, and prefer focused commits such as `Add CLI skeleton` or `Document contributor workflow`.
@@ -51,3 +54,5 @@ Pull requests should include:
 
 ## Documentation Expectations
 When adding source code or tooling, update this guide so it stays accurate. Do not describe commands, directories, or workflows that do not exist in the repository.
+
+When editing packaged workflow references, prefer explicit repo artifacts over implied runtime state. Do not add instructions that assume persistent expertise files or guaranteed session-log paths unless the repository actually ships that behavior.

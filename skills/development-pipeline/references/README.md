@@ -104,8 +104,9 @@ Validation team
   - `../development-pipeline-shared-orchestrator/SKILL.md`
   - `../development-pipeline-shared-worker/SKILL.md`
   - `../development-pipeline-shared-reviewer/SKILL.md`
+- Memory and session behavior follow `../../../docs/codex-agent-memory-and-sessions.md`.
 - Boundary enforcement in Codex remains policy-driven through `scripts/generate_boundary_policy.py` and `scripts/write_boundary_guard.py`.
-- Claude-specific runtime mechanics such as automatic shared-skill injection or persistent expertise loading are still reference concepts, not active Codex runtime features.
+- Persistent expertise loading is not part of the packaged Codex runtime contract. Durable handoff state lives in explicit repo artifacts such as research, design, plan, boundary, and validation outputs.
 
 ---
 
@@ -129,6 +130,17 @@ Validation team
 | Plan | Planning | `plan` | `docs/plan/<feature>/` | Approve plan |
 | Implement | Engineering | `implement-lead` | code, tests, automated gate results, handoff package | Validation reviews output |
 | Validate | Validation | `validation-lead` | consolidated review verdict, fix checklist, pass/fail handoff | Orchestrator decides whether to proceed |
+
+---
+
+## Memory And Session Contract
+
+- Persistent per-agent memory is out of scope for this plugin.
+- The current conversation and explicit repo artifacts are the only guaranteed context sources.
+- Durable handoffs live in `docs/research/`, `docs/design/`, `docs/plan/`, generated boundary policies, and the validation outputs described by the workflow.
+- Optional local logs may exist in the surrounding environment, but they are not required or assumed by the packaged workflow.
+
+See `../../../docs/codex-agent-memory-and-sessions.md` for the repository-wide convention.
 
 ---
 

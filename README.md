@@ -45,6 +45,19 @@ The authoritative shared behavior contracts are now:
 - `development-pipeline-shared-worker` for execution workers and tester-style reporting
 - `development-pipeline-shared-reviewer` for actionable review output
 
+## Memory And Sessions
+
+Persistent per-agent memory is out of scope for this plugin. Packaged prompts should use the current conversation plus explicit repo artifacts as their context source, not hidden expertise files or implied session logs.
+
+The workflow guarantees only explicit artifacts such as:
+
+- research, design, and plan docs under `docs/`
+- generated boundary policy files
+- implementation handoff packages described by the references
+- validation verdicts and fix checklists in the active session
+
+Optional local logs may exist in the surrounding environment, but they are not part of the plugin contract. The repository-wide convention is documented in `docs/codex-agent-memory-and-sessions.md`.
+
 ## Local maintenance
 
 - `make test` runs the standard-library `unittest` suite for the repo scripts
@@ -59,6 +72,6 @@ Both commands use only the Python 3 standard library.
 
 If you want to evolve the plugin further, the most valuable additions are:
 
-1. reconcile expertise and session expectations with Codex-native conventions
-2. harden the boundary guard further around staged-only verification and stale-policy detection
+1. harden the boundary guard further around staged-only verification and stale-policy detection
+2. simplify or remove remaining Claude-source metadata that is still carried only for reference
 3. refine policy generation for broader real-plan conventions such as docs-only or migration-heavy phases

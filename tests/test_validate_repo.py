@@ -219,6 +219,56 @@ class ValidateRepoTests(unittest.TestCase):
         self.assertNotIn("skills: [actionable-reviewer]", teams_yaml)
         self.assertNotIn("skills: [verbose-worker]", teams_yaml)
 
+    def test_memory_and_session_docs_replace_stale_expertise_runtime_claims(self) -> None:
+        memory_doc = (REPO_ROOT / "docs" / "codex-agent-memory-and-sessions.md").read_text(encoding="utf-8")
+        workflow_readme = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "README.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("persistent per-agent memory is out of scope", memory_doc.lower())
+        self.assertIn("docs/codex-agent-memory-and-sessions.md", workflow_readme)
+
+        checked_files = [
+            "skills/development-pipeline/references/research-lead.md",
+            "skills/development-pipeline/references/design.md",
+            "skills/development-pipeline/references/plan.md",
+            "skills/development-pipeline/references/implement-lead.md",
+            "skills/development-pipeline/references/implement-coder.md",
+            "skills/development-pipeline/references/research-subagent-architecture.md",
+            "skills/development-pipeline/references/research-subagent-patterns.md",
+            "skills/development-pipeline/references/research-subagent-integrations.md",
+            "skills/development-pipeline/references/research-subagent-domain.md",
+            "skills/development-pipeline/references/research-subagent-api.md",
+            "skills/development-pipeline/references/research-subagent-tests.md",
+            "skills/development-pipeline/references/research-subagent-fintech-domain.md",
+            "skills/development-pipeline/references/reviewer-quality.md",
+            "skills/development-pipeline/references/reviewer-architecture.md",
+            "skills/development-pipeline/references/reviewer-security.md",
+            "skills/development-pipeline/references/reviewer-plan-compliance.md",
+            "skills/development-pipeline/references/reviewer-fintech-compliance.md",
+            "skills/development-pipeline/references/reviewer-fintech-patterns.md",
+            "skills/development-pipeline/references/tester.md",
+        ]
+
+        for relative_path in checked_files:
+            contents = (REPO_ROOT / relative_path).read_text(encoding="utf-8")
+            self.assertNotIn("Read your expertise file", contents, relative_path)
+            self.assertNotIn("expertise:", contents, relative_path)
+            self.assertIn("docs/codex-agent-memory-and-sessions.md", contents, relative_path)
+
+    def test_final_packaged_docs_and_guides_share_same_runtime_contract(self) -> None:
+        readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+        agents = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        workflow_readme = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "README.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("docs/codex-agent-memory-and-sessions.md", readme)
+        self.assertIn("docs/codex-agent-memory-and-sessions.md", agents)
+        self.assertIn("docs/codex-agent-memory-and-sessions.md", workflow_readme)
+        self.assertIn("Persistent per-agent memory is out of scope", readme)
+        self.assertIn("Persistent per-agent memory is out of scope", workflow_readme)
+
 
 if __name__ == "__main__":
     unittest.main()

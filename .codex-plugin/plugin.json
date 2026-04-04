@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Codex plugin for the development-pipeline skill and its four-phase research, design, plan, and implementation guidance.",
   "author": {
-    "name": "OpenAI"
+    "name": "Veaceslav Cozmulici"
   },
   "license": "MIT",
   "keywords": [
@@ -20,7 +20,7 @@
     "displayName": "Development Pipeline",
     "shortDescription": "Four-phase development pipeline for Codex",
     "longDescription": "Use a gated development pipeline in Codex that separates research, design, planning, and implementation into explicit phases before code is written.",
-    "developerName": "OpenAI",
+    "developerName": "Veaceslav Cozmulici",
     "category": "Coding",
     "capabilities": [
       "Interactive",

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Development Pipeline"
+  short_description: "Orchestrate research, design, plan, implement"
+  default_prompt: "Use $development-pipeline to validate or update a four-phase development pipeline skill."

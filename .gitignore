@@ -1,5 +1,6 @@
 .DS_Store
 .idea/
+docs/
 dist/
 __pycache__/
 .codex-boundary/

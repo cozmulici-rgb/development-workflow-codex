@@ -7,6 +7,7 @@ This repository is a Codex plugin repo for an orchestrator-led `development-pipe
 - `skills/development-pipeline-orchestrator/` contains the single user-facing orchestrator entrypoint
 - `skills/development-pipeline/` contains the packaged workflow bundle, role references, and `agents/openai.yaml`
 - `skills/development-pipeline-research/`, `skills/development-pipeline-design/`, `skills/development-pipeline-plan/`, and `skills/development-pipeline-implement/` expose phase-specific entrypoint skills
+- `skills/development-pipeline-validation/` exposes the validation-team entrypoint
 - `.codex-plugin/plugin.json` defines the plugin manifest used by Codex
 - `.agents/plugins/marketplace.json` exposes the repo as a local marketplace plugin
 - `docs/claude-to-codex-integration.md` documents how the upstream Claude implementation maps into Codex
@@ -32,9 +33,9 @@ The packaged workflow exposes this top-level routing model:
 - orchestrator: `development-pipeline-orchestrator`
 - planning team: research, design, and plan stages
 - engineering team: implement lead plus coder
-- validation team: reviewers plus tester
+- validation team: validation lead, reviewers, and tester
 
-Phase 01 only establishes this topology. The four-phase workflow remains the underlying execution model, and validation is still coordinated through the current implementation references until a dedicated validation entrypoint is added.
+Engineering now owns coding plus automated gates, then hands each completed phase to the validation team. Validation coordinates reviewers and tester through a dedicated entrypoint and returns a consolidated pass/fail verdict plus fix checklist.
 
 ## Local maintenance
 
@@ -50,6 +51,6 @@ Both commands use only the Python 3 standard library.
 
 If you want to evolve the plugin further, the most valuable additions are:
 
-1. split validation into its own packaged team entrypoint and lead reference
+1. replace reference-only shared workflow labels with packaged Codex-native shared behavior assets
 2. harden the boundary guard further around staged-only verification and stale-policy detection
 3. refine policy generation for broader real-plan conventions such as docs-only or migration-heavy phases

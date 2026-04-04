@@ -159,6 +159,37 @@ class ValidateRepoTests(unittest.TestCase):
         self.assertIn("\n  validation:\n", teams_yaml)
         self.assertIn("lead: research-lead", teams_yaml)
         self.assertIn("lead: implement-lead", teams_yaml)
+        self.assertIn("lead: validation-lead", teams_yaml)
+
+    def test_validation_team_binds_validation_lead_reviewers_and_tester(self) -> None:
+        teams_yaml = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "teams.yaml"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("\n  validation:\n", teams_yaml)
+        self.assertIn("lead: validation-lead", teams_yaml)
+        self.assertIn("- name: validation-lead", teams_yaml)
+        self.assertIn("- name: reviewer-quality", teams_yaml)
+        self.assertIn("- name: reviewer-architecture", teams_yaml)
+        self.assertIn("- name: reviewer-security", teams_yaml)
+        self.assertIn("- name: reviewer-plan-compliance", teams_yaml)
+        self.assertIn("- name: tester", teams_yaml)
+
+    def test_validation_lead_references_are_included_in_packaged_workflow_docs(self) -> None:
+        workflow_readme = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "README.md"
+        ).read_text(encoding="utf-8")
+        validation_skill = (
+            REPO_ROOT / "skills" / "development-pipeline-validation" / "SKILL.md"
+        ).read_text(encoding="utf-8")
+        validation_lead = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "validation-lead.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("validation-lead", workflow_readme)
+        self.assertIn("development-pipeline-validation", workflow_readme)
+        self.assertIn("name: development-pipeline-validation", validation_skill)
+        self.assertIn("name: validation-lead", validation_lead)
 
 
 if __name__ == "__main__":

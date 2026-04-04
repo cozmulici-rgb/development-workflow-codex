@@ -109,7 +109,7 @@ teams:
           write: ["src/**", "tests/**", "config/**"]
 
   validation:
-    lead: implement-lead
+    lead: validation-lead
     color: amber
     skills:
       - zero-micromanagement
@@ -117,10 +117,13 @@ teams:
     domain:
       read: ["**/*"]
       write: []
-    notes:
-      - Phase 01 keeps validation inside the current implementation loop for execution.
-      - A dedicated validation lead is introduced in Phase 02.
     members:
+      - name: validation-lead
+        model: opus
+        skills: [zero-micromanagement, conversational-response]
+        domain:
+          read: ["**/*"]
+          write: []
       - name: reviewer-quality
         skills: [actionable-reviewer]
         domain:

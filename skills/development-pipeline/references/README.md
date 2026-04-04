@@ -18,10 +18,8 @@ Code is still written only during the implementation phase. Research, design, an
 
 - The orchestrator is the single packaged entrypoint presented to the user.
 - Planning owns research, design, and plan as ordered internal stages.
-- Engineering owns implementation execution.
-- Validation remains an explicit team concern for reviews and testing, even where the current implementation loop still drives those steps.
-
-This phase establishes the topology and routing contract only. It does not yet change the underlying implementation behavior.
+- Engineering owns implementation execution and automated gates.
+- Validation owns reviewer and tester coordination after engineering hands off a completed phase package.
 
 ---
 
@@ -37,6 +35,7 @@ development-pipeline-orchestrator
   │     ├── implement-lead
   │     └── implement-coder
   └── Validation team
+        ├── validation-lead
         ├── reviewer-quality
         ├── reviewer-architecture
         ├── reviewer-security
@@ -81,9 +80,18 @@ Engineering team
   D. Implement
     implement-lead
       └── implement-coder
+    Output: validated handoff package for the current phase
 
 Validation team
-  Review and test outputs around each implementation phase
+  validation-lead
+    ├── reviewer-quality
+    ├── reviewer-architecture
+    ├── reviewer-security
+    ├── reviewer-plan-compliance
+    ├── reviewer-fintech-compliance
+    ├── reviewer-fintech-patterns
+    └── tester
+  Output: consolidated pass/fail verdict plus fix checklist
 ```
 
 ---
@@ -103,8 +111,8 @@ Validation team
 |------|-------|--------------------|
 | Orchestrator | Single user-facing routing and synthesized handoff state | `../development-pipeline-orchestrator/SKILL.md`, `teams.yaml` |
 | Planning | Research, design, and plan stages with their approval gates | `research-lead.md`, `design.md`, `plan.md` |
-| Engineering | Implement approved phases and produce candidate changes | `implement-lead.md`, `implement-coder.md` |
-| Validation | Review and test implementation output | `reviewer-*.md`, `tester.md` |
+| Engineering | Implement approved phases, run automated gates, and prepare handoff packages | `implement-lead.md`, `implement-coder.md` |
+| Validation | Review and test the engineering handoff package, then return a verdict | `validation-lead.md`, `reviewer-*.md`, `tester.md` |
 
 ---
 
@@ -115,7 +123,8 @@ Validation team
 | Research | Planning | `research-lead` | `docs/research/<feature>.md` | Approve research doc |
 | Design | Planning | `design` | `discussion.md`, design artifacts, `structure-outline.md` | Approve discussion, then design artifacts |
 | Plan | Planning | `plan` | `docs/plan/<feature>/` | Approve plan |
-| Implement | Engineering with validation review loop | `implement-lead` | code, tests, review/test results | Review implementation output |
+| Implement | Engineering | `implement-lead` | code, tests, automated gate results, handoff package | Validation reviews output |
+| Validate | Validation | `validation-lead` | consolidated review verdict, fix checklist, pass/fail handoff | Orchestrator decides whether to proceed |
 
 ---
 
@@ -127,3 +136,4 @@ Validation team
 - `development-pipeline-design`: phase entrypoint for design work
 - `development-pipeline-plan`: phase entrypoint for planning work
 - `development-pipeline-implement`: phase entrypoint for implementation work
+- `development-pipeline-validation`: phase entrypoint for validation work

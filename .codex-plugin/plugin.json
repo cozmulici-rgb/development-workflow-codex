@@ -1,7 +1,7 @@
 {
   "name": "development-pipeline",
   "version": "0.1.0",
-  "description": "Codex plugin for the development-pipeline skill and its four-phase research, design, plan, and implementation guidance.",
+  "description": "Codex plugin for an orchestrator-led development pipeline that preserves gated research, design, planning, implementation, and validation workflow guidance.",
   "author": {
     "name": "Veaceslav Cozmulici"
   },
@@ -18,8 +18,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Development Pipeline",
-    "shortDescription": "Four-phase development pipeline for Codex",
-    "longDescription": "Use a gated development pipeline in Codex that separates research, design, planning, and implementation into explicit phases before code is written.",
+    "shortDescription": "Orchestrator-led development pipeline for Codex",
+    "longDescription": "Use a Codex-native orchestrator entrypoint that routes work across planning, engineering, and validation while preserving the gated research, design, plan, and implement phases before code is written.",
     "developerName": "Veaceslav Cozmulici",
     "category": "Coding",
     "capabilities": [
@@ -27,7 +27,7 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Use the development-pipeline skill to research, design, plan, and implement work in gated phases"
+      "Use the development-pipeline-orchestrator skill to route work through planning, engineering, and validation while preserving the gated development pipeline"
     ],
     "brandColor": "#1F6FEB"
   }

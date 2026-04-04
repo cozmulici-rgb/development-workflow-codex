@@ -1,0 +1,165 @@
+from __future__ import annotations
+
+import contextlib
+import json
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from tests.test_support import REPO_ROOT, load_script_module
+
+
+validate_repo = load_script_module("validate_repo_under_test", "scripts/validate_repo.py")
+
+
+class ValidateRepoTests(unittest.TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp_dir.name).resolve()
+        (self.root / ".codex-plugin").mkdir(parents=True)
+        (self.root / ".agents" / "plugins").mkdir(parents=True)
+        (self.root / "skills" / "example-skill").mkdir(parents=True)
+        (self.root / "docs").mkdir()
+        self._write("LICENSE", "license\n")
+        self._write("README.md", "readme\n")
+        self._write("AGENTS.md", "agents\n")
+        self._write_json(
+            ".codex-plugin/plugin.json",
+            {
+                "name": "example-plugin",
+                "version": "0.1.0",
+                "skills": "skills",
+            },
+        )
+        self._write_json(
+            ".agents/plugins/marketplace.json",
+            {
+                "plugins": [
+                    {
+                        "name": "example-plugin",
+                        "source": {"source": "local", "path": "."},
+                    }
+                ]
+            },
+        )
+        self._write(
+            "skills/example-skill/SKILL.md",
+            "---\nname: example-skill\ndescription: Example skill\n---\n\nBody\n",
+        )
+
+    def tearDown(self) -> None:
+        self.temp_dir.cleanup()
+        super().tearDown()
+
+    def _write(self, relative_path: str, contents: str) -> None:
+        path = self.root / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(contents, encoding="utf-8")
+
+    def _write_json(self, relative_path: str, payload: dict) -> None:
+        self._write(relative_path, json.dumps(payload, indent=2) + "\n")
+
+    @contextlib.contextmanager
+    def patched_module(self):
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(patch.object(validate_repo, "ROOT", self.root))
+            stack.enter_context(
+                patch.object(validate_repo, "PLUGIN_MANIFEST", self.root / ".codex-plugin" / "plugin.json")
+            )
+            stack.enter_context(
+                patch.object(
+                    validate_repo,
+                    "MARKETPLACE_MANIFEST",
+                    self.root / ".agents" / "plugins" / "marketplace.json",
+                )
+            )
+            stack.enter_context(
+                patch.object(
+                    validate_repo,
+                    "REQUIRED_ROOT_FILES",
+                    (
+                        self.root / "LICENSE",
+                        self.root / "README.md",
+                        self.root / "AGENTS.md",
+                    ),
+                )
+            )
+            yield
+
+    def test_main_passes_for_valid_fixture(self) -> None:
+        with self.patched_module():
+            self.assertEqual(validate_repo.main(), 0)
+
+    def test_main_reports_invalid_boundary_policy(self) -> None:
+        self._write_json(
+            "docs/boundary.invalid.json",
+            {
+                "version": 2,
+                "role": "implement-coder",
+                "feature": "example",
+                "mode": "enforce",
+                "allowed_write_globs": ["src/**"],
+                "blocked_write_globs": ["docs/**"],
+                "allowed_touched_files": ["src/example.py"],
+            },
+        )
+
+        with self.patched_module():
+            self.assertEqual(validate_repo.main(), 1)
+
+    def test_main_rejects_skill_path_outside_repo(self) -> None:
+        self._write_json(
+            ".codex-plugin/plugin.json",
+            {
+                "name": "example-plugin",
+                "version": "0.1.0",
+                "skills": "../elsewhere",
+            },
+        )
+
+        with self.patched_module():
+            self.assertEqual(validate_repo.main(), 1)
+
+    def test_parse_frontmatter_reports_malformed_line(self) -> None:
+        skill_file = self.root / "skills" / "example-skill" / "SKILL.md"
+        skill_file.write_text("---\nname example-skill\n---\n", encoding="utf-8")
+        errors: list[str] = []
+
+        with self.patched_module():
+            frontmatter = validate_repo.parse_frontmatter(skill_file, errors)
+
+        self.assertEqual(frontmatter, {})
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Malformed frontmatter line", errors[0])
+
+    def test_packaged_skill_tree_includes_orchestrator_entrypoint(self) -> None:
+        manifest = json.loads((REPO_ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        skills_dir = (REPO_ROOT / manifest["skills"]).resolve()
+        orchestrator_skill = skills_dir / "development-pipeline-orchestrator" / "SKILL.md"
+
+        self.assertTrue(orchestrator_skill.is_file())
+
+        frontmatter_errors: list[str] = []
+        frontmatter = validate_repo.parse_frontmatter(orchestrator_skill, frontmatter_errors)
+
+        self.assertEqual(frontmatter_errors, [])
+        self.assertEqual(frontmatter.get("name"), "development-pipeline-orchestrator")
+
+    def test_team_config_exposes_orchestrator_planning_engineering_validation_roles(self) -> None:
+        teams_yaml = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "teams.yaml"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("orchestrator:\n", teams_yaml)
+        self.assertIn("entrypoint: development-pipeline-orchestrator", teams_yaml)
+        self.assertIn("teams:\n  planning:\n", teams_yaml)
+        self.assertIn("\n  engineering:\n", teams_yaml)
+        self.assertIn("\n  validation:\n", teams_yaml)
+        self.assertIn("lead: research-lead", teams_yaml)
+        self.assertIn("lead: implement-lead", teams_yaml)
+
+
+if __name__ == "__main__":
+    unittest.main()

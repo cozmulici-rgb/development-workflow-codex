@@ -2,7 +2,6 @@
 name: reviewer-plan-compliance
 description: Plan Compliance Reviewer Agent for Phase D implementation review. Checks that the implementation matches exactly what the approved plan specified — nothing missing, nothing invented outside scope. Prevents scope creep and undone work. Spawned by implement-lead. Returns actionable diffs only.
 tools: Read, Glob, Grep, Bash
-model: sonnet
 color: red
 config: teams.yaml
 ---

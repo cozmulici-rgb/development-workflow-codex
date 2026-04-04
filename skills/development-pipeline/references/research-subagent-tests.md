@@ -2,7 +2,6 @@
 name: research-subagent-tests
 description: Test scanner sub-research agent for Phase A. Scans the codebase for existing test structure, test locations, fixtures, test conventions, and coverage of code relevant to the ticket. Spawned by research-lead. Returns structured findings only — no opinions.
 tools: Read, Glob, Grep, Bash
-model: haiku
 color: cyan
 config: teams.yaml
 ---

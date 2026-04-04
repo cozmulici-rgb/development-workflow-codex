@@ -82,7 +82,7 @@ Specifically:
 
 - it does not depend on persistent per-agent expertise files
 - it does not assume guaranteed session-log paths
-- it does not implement Claude-style pre-write hook enforcement
+- it does not implement provider-specific pre-write hook enforcement
 
 The workflow relies on explicit repository artifacts and current conversation context. The authoritative description of these assumptions lives in `docs/codex-agent-memory-and-sessions.md`.
 

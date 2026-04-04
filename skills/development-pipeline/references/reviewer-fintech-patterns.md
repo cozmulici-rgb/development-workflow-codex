@@ -2,7 +2,6 @@
 name: reviewer-fintech-patterns
 description: FinTech Patterns Reviewer for Phase D implementation review. Validates double-entry bookkeeping, immutable ledger, idempotency keys, outbox pattern, and monetary arithmetic (BCMath, DECIMAL(18,4)). Spawned by implement-lead. Returns actionable diffs — critical findings block phase completion.
 tools: Read, Glob, Grep, Bash
-model: sonnet
 color: orange
 config: teams.yaml
 ---

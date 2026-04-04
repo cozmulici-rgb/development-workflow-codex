@@ -1,0 +1,4 @@
+interface:
+  display_name: "Development Pipeline Orchestrator"
+  short_description: "Route work through the gated pipeline"
+  default_prompt: "Use $development-pipeline-orchestrator to route work through planning, engineering, and validation while preserving the gated development pipeline."

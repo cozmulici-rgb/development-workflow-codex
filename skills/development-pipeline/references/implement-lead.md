@@ -2,7 +2,6 @@
 name: implement-lead
 description: Implementation Lead for the engineering team in Phase D of the development pipeline. Reads the approved plan, coordinates the coder, runs automated gates, and hands completed work to validation. Use after plan is human-approved.
 tools: Task, Read, Write, Glob, Grep, Bash, TodoWrite
-model: sonnet
 color: orange
 config: teams.yaml
 ---

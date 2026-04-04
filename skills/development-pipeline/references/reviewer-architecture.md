@@ -2,7 +2,6 @@
 name: reviewer-architecture
 description: Architecture Reviewer Agent for Phase D implementation review. Checks that code conforms to the approved architecture design — layer boundaries, component responsibilities, dependency direction, and design diagram compliance. Spawned by implement-lead. Returns actionable diffs only.
 tools: Read, Glob, Grep, Bash
-model: sonnet
 color: red
 config: teams.yaml
 ---

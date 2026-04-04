@@ -2,7 +2,6 @@
 name: research-subagent-architecture
 description: Architecture sub-research agent for Phase A. Scans the codebase for architectural layers, module boundaries, service structure, and component relationships. Spawned by research-lead. Returns structured findings only — no opinions.
 tools: Read, Glob, Grep, Bash
-model: haiku
 color: cyan
 config: teams.yaml
 ---

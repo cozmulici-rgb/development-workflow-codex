@@ -2,7 +2,6 @@
 name: tester
 description: Tester Agent for Phase D implementation review. Runs the test suite, reports failures with minimal reproduction steps, verifies test coverage for the phase, and checks that all test cases from the plan are implemented and passing. Spawned by implement-lead after each phase.
 tools: Read, Glob, Grep, Bash
-model: sonnet
 color: green
 config: teams.yaml
 ---

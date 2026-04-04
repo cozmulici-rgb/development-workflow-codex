@@ -2,7 +2,6 @@
 name: plan
 description: Planner Agent for Phase C of the development pipeline. Converts approved Research and Design documents into a phased implementation plan. Each phase is independently implementable, testable, and reviewable. Must be used after design is human-approved and before implement-lead. Produces docs/plan/<feature>/* artifacts.
 tools: Read, Write, Glob, Grep, Bash
-model: sonnet
 color: green
 config: teams.yaml
 ---

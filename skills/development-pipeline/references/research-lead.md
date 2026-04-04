@@ -2,7 +2,6 @@
 name: research-lead
 description: Research Lead Agent for Phase A of the development pipeline. Orchestrates parallel sub-research agents to build a compressed, factual "map" of the codebase relevant to a feature/ticket. Use at the start of any non-trivial feature or bug work to produce a Research Document before design or planning begins.
 tools: Task, Read, Glob, Grep, Write, Bash
-model: sonnet
 color: blue
 config: teams.yaml
 ---

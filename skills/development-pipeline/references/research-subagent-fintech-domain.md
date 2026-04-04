@@ -2,7 +2,6 @@
 name: research-subagent-fintech-domain
 description: FinTech domain scanner sub-research agent for Phase A. Scans the codebase for financial entities, ledger structures, payment state machines, currency handling, and existing compliance integrations. Spawned by research-lead. Returns structured findings only — no opinions.
 tools: Read, Glob, Grep, Bash
-model: sonnet
 color: cyan
 config: teams.yaml
 ---

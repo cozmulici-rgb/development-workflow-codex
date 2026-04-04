@@ -149,6 +149,13 @@ Create `README.md` (overview) and one file per phase.
 |-----------|--------|
 | `src/OldFoo.php` | Replaced by FooService |
 
+## Boundary Policy Output
+
+This phase document must be specific enough for `scripts/generate_boundary_policy.py` to derive `boundary.phase-XX.json` automatically.
+That means:
+- every file path that may be touched in this phase appears in `Files to Create`, `Files to Modify`, `Files to Delete`, or `Tests to Add / Modify`
+- no implementation-critical file is implied without being listed explicitly
+
 ## Interface & Contract Changes
 
 <List any interface/contract changes this phase introduces. If the interface is new, paste it from contracts.md. If it modifies an existing interface, show the diff.>
@@ -191,11 +198,12 @@ At the end of this phase, ALL of the following must be true:
 ## Planning Rules
 
 1. **Every file change is explicit.** No "and other relevant files."
-2. **Every phase has verifiable acceptance criteria.** "Tests pass" is not enough — say which tests.
-3. **Never plan more than what is in the approved design.** Plan Compliance reviewer will fail you if you invent scope.
-4. **Flag if a design gap exists.** If the design doesn't specify something you need, note it as a blocker in the phase.
-5. **Implementation notes prevent mistakes.** Specific patterns to follow, specific things to avoid.
-6. **Phase size matters.** If a phase would require an agent to touch > 10 files, consider splitting it.
+2. **Every phase must be boundary-policy derivable.** The file lists in the phase doc are the source for `boundary.phase-XX.json`.
+3. **Every phase has verifiable acceptance criteria.** "Tests pass" is not enough — say which tests.
+4. **Never plan more than what is in the approved design.** Plan Compliance reviewer will fail you if you invent scope.
+5. **Flag if a design gap exists.** If the design doesn't specify something you need, note it as a blocker in the phase.
+6. **Implementation notes prevent mistakes.** Specific patterns to follow, specific things to avoid.
+7. **Phase size matters.** If a phase would require an agent to touch > 10 files, consider splitting it.
 
 ## Quality Gate
 
@@ -206,6 +214,7 @@ Before finalizing:
 - [ ] Each phase independently testable (explicit test commands)
 - [ ] Every phase lists exact files to create/modify/delete
 - [ ] Every phase lists tests to add/modify with test case references
+- [ ] Every phase can generate an accurate `boundary.phase-XX.json` without manual edits
 - [ ] Every phase has acceptance criteria with checkboxes
 - [ ] No phase invents scope not in the design docs
 - [ ] Implementation notes capture all "gotchas" from research/design

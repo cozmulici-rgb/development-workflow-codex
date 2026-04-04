@@ -44,6 +44,7 @@ You do not write production code. You coordinate agents that do.
 Before starting, read ALL phase documents:
 - `docs/plan/<feature>/README.md`
 - All `phase-XX.md` files
+- Any `boundary.phase-XX.json` files already present
 
 Build a mental model of:
 - Total number of phases
@@ -62,11 +63,23 @@ For each phase `i`, execute the **per-phase execution loop**:
 
 ### Step 1a — Prepare Context Pack
 
-Before delegating to the Coder, prepare a minimal context bundle:
+Before delegating to the Coder, ensure the phase boundary policy exists and prepare a minimal context bundle:
+
+1. If `docs/plan/<feature>/boundary.phase-XX.json` does not exist yet, generate it from the approved plan:
+   ```bash
+   make boundary-generate PLAN_DIR=docs/plan/<feature>
+   ```
+2. Verify that the generated policy matches the approved phase scope.
+3. Start a guarded session for the phase policy:
+   ```bash
+   python3 scripts/write_boundary_guard.py start --policy docs/plan/<feature>/boundary.phase-XX.json
+   ```
+4. Prepare the context bundle:
 
 ```
 Phase context for Coder:
 - Phase plan: docs/plan/<feature>/phase-XX.md
+- Phase boundary policy: docs/plan/<feature>/boundary.phase-XX.json
 - Design sections relevant to this phase: [specific sections from design docs]
 - Research snippets: [only files relevant to this phase]
 - Standards: [only standards relevant to this phase]
@@ -89,6 +102,9 @@ Wait for the Coder to complete and return a report.
 After Coder completes, run these checks yourself (via Bash):
 
 ```bash
+# 0. Write-boundary verification
+python3 scripts/write_boundary_guard.py verify --policy docs/plan/<feature>/boundary.phase-XX.json
+
 # 1. Build / compile check (language-specific)
 # 2. Unit tests
 # 3. Linters
@@ -120,6 +136,7 @@ When automated gates pass, invoke ALL reviewer agents in parallel (single messag
 
 Pass each reviewer:
 - The phase plan (`phase-XX.md`)
+- The phase boundary policy (`boundary.phase-XX.json`)
 - The relevant design docs
 - The code diff or file list changed
 - The research document (for context on existing patterns)
@@ -154,16 +171,23 @@ If ANY reviewer reports issues:
 
 When all gates and all reviewers pass:
 
-1. Create a phase commit using the explicit file list from the Coder's report:
+1. Stage only files allowed by the boundary policy:
    ```bash
-   git add <file1> <file2> ...
+   python3 scripts/write_boundary_guard.py stage --policy docs/plan/<feature>/boundary.phase-XX.json -- <file1> <file2> ...
+   ```
+2. Re-run boundary verification on the staged state:
+   ```bash
+   python3 scripts/write_boundary_guard.py verify --policy docs/plan/<feature>/boundary.phase-XX.json
+   ```
+3. Create a phase commit using the explicit file list from the Coder's report:
+   ```bash
    git commit -m "feat(<feature>): phase XX — <phase objective>"
    ```
-   **Never use `git add -A`** — only stage files the Coder explicitly created or modified. This prevents accidentally committing debug artifacts, env files, or generated files.
+   **Never use `git add -A`** — only stage files the Coder explicitly created or modified through the boundary guard. This prevents accidentally committing debug artifacts, env files, generated files, or out-of-scope edits.
 
-2. Log phase completion in TodoWrite
+4. Log phase completion in TodoWrite
 
-3. Proceed to next phase
+5. Proceed to next phase
 
 ---
 
@@ -199,6 +223,7 @@ Ready for final PR / Release gate.
 - Never accept "make it better" feedback — ask reviewers to be specific
 - Always compile reviewer feedback into a numbered checklist before sending to Coder
 - Log every phase outcome
+- Treat a boundary-verification failure as a hard stop until the diff is back in approved scope
 
 ## Escalation Triggers
 

@@ -24,7 +24,7 @@ don't patch code; testers don't design.
 - Team structure, models, and domain boundaries defined in `teams.yaml`
 - Composable skills injected per agent from `claude/skills/shared/`
 - Persistent mental models stored in `claude/expertise/development-pipeline/`
-- Write boundaries enforced at prompt level and by `claude/hooks/domain-lock.sh`
+- Write boundaries enforced at prompt level and, in Codex, by generated boundary policies plus `scripts/write_boundary_guard.py`
 
 ---
 
@@ -204,7 +204,7 @@ One `.md` file per agent. Agents read their expertise file at boot and update it
 
 Write boundaries enforced two ways:
 1. **Prompt-level** — boot preamble states allowed read/write paths
-2. **Hook-level** — `claude/hooks/domain-lock.sh` blocks Write/Edit tool calls outside allowed globs
+2. **Verifier-level** — `scripts/generate_boundary_policy.py` derives `boundary.phase-XX.json` from phase docs and `scripts/write_boundary_guard.py` verifies the current diff before review, staging, and commit
 
 ---
 

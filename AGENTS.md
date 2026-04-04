@@ -1,23 +1,31 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-This repository is currently minimal: the only tracked project file is [`LICENSE`](/Users/vcozmulici/workspace/ai/development-workflow-codex/LICENSE). There is no `src/`, `tests/`, or package manifest yet. As code is added, keep the layout predictable:
+This repository packages a Codex plugin and its skill assets. Current top-level areas:
 
-- `src/` for application code
-- `tests/` for automated tests
-- `docs/` for design notes and contributor-facing documentation
-- `assets/` for static files such as images or sample data
+- `skills/` for packaged Codex skills and their supporting files
+- `.codex-plugin/` for the plugin manifest
+- `.agents/plugins/` for local marketplace metadata
+- `scripts/` for repo-local validation and packaging helpers
+- `docs/` for contributor-facing documentation
 
-Use small, focused modules and keep test files close to the feature area they validate or mirrored under `tests/`.
+Use small, focused modules and keep validation or packaging logic in standalone scripts rather than scattering it across ad hoc shell snippets.
 
 ## Build, Test, and Development Commands
-There are no build, test, or local run commands defined yet. Before adding tooling, prefer standard entry points so contributors can discover them quickly:
+The repository now provides local Make targets for the core maintenance workflow:
 
-- `make test` or `npm test` for the main test suite
-- `make lint` or `npm run lint` for style checks
-- `make build` or `npm run build` for production artifacts
+- `make validate` runs `scripts/validate_repo.py` to check plugin metadata, marketplace wiring, and skill frontmatter
+- `make package` runs validation and builds a zip archive in `dist/`
+- `make boundary-check POLICY=<path>` runs `scripts/write_boundary_guard.py verify` against a boundary policy file
+- `make boundary-generate PLAN_DIR=<path>` runs `scripts/generate_boundary_policy.py` to derive policy files from phase plans
+- `python3 scripts/validate_repo.py` is the direct entry point when you want script output without `make`
+- `python3 scripts/package_plugin.py` is the direct packaging entry point
+- `python3 scripts/write_boundary_guard.py ...` is the direct write-boundary guard entry point
+- `python3 scripts/generate_boundary_policy.py <plan-dir>` is the direct policy generation entry point
 
-If you introduce a new toolchain, document the exact commands in this file and in a future `README.md`.
+If a write-boundary verifier is added or updated, document its invocation here and in `README.md`.
+
+Document any additional commands in this file and `README.md` when new tooling is introduced.
 
 ## Coding Style & Naming Conventions
 Use consistent, idiomatic style for the language you introduce. Default expectations for this repository:
@@ -29,7 +37,7 @@ Use consistent, idiomatic style for the language you introduce. Default expectat
 Adopt an automatic formatter and linter with the first major code addition and commit their config with the codebase.
 
 ## Testing Guidelines
-No testing framework is configured yet. Add automated tests with the first feature change; do not rely on manual checks alone. Name tests after behavior, for example `test_handles_empty_input` or `cli.spec.ts`. Target meaningful coverage for new code and include regression tests for bug fixes.
+No separate test framework is configured yet. For repo-maintenance changes, run `make validate` and, when packaging changes are involved, `make package`. Add automated tests with the first feature that justifies a broader test harness; do not rely on manual checks alone.
 
 ## Commit & Pull Request Guidelines
 The current Git history contains a single commit: `Initial commit`. Follow that baseline with short, imperative commit subjects, and prefer focused commits such as `Add CLI skeleton` or `Document contributor workflow`.

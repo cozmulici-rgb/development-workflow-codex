@@ -1,7 +1,6 @@
 # Development Pipeline Codex Plugin
 
 This repository is a Codex plugin repo for the `development-pipeline` skill.
-Its packaged references are synced to the current Claude workflow under `ai-toolbox-experiments/claude/agents/development-pipeline/`, not the older `~/.codex/skills/development-pipeline` copy.
 
 ## What is included
 
@@ -9,14 +8,6 @@ Its packaged references are synced to the current Claude workflow under `ai-tool
 - `.codex-plugin/plugin.json` defines the plugin manifest used by Codex
 - `.agents/plugins/marketplace.json` exposes the repo as a local marketplace plugin
 - `docs/claude-to-codex-integration.md` documents how the upstream Claude implementation maps into Codex
-
-## Source of truth
-
-The pipeline concept was investigated from the upstream Claude implementation at:
-
-- `../../mysites/ai-toolbox-experiments/claude/agents/development-pipeline/`
-- `../../mysites/ai-toolbox-experiments/claude/commands/development-pipeline/`
-- `../../mysites/ai-toolbox-experiments/claude/hooks/domain-lock.sh`
 
 The Codex version in this repository keeps the portable parts:
 
@@ -31,7 +22,7 @@ It includes the upstream prompt and config files for alignment, but does not try
 
 ## Local install
 
-From Codex, add this repo as a local marketplace and install `development-pipeline` from it. After that, you can remove or ignore the home-installed `~/.codex/skills/development-pipeline` copy.
+From Codex, add this repo as a local marketplace and install `development-pipeline` from it. 
 
 ## Next steps
 

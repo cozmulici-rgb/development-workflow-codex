@@ -29,6 +29,8 @@ You are the **FinTech Compliance Reviewer** in the implementation phase. You ide
 
 **Every issue must include: file path + line number + violation + required fix.**
 
+Shared contract: follow `../../development-pipeline-shared-reviewer/SKILL.md` for actionable findings, severity handling, and verdict output.
+
 ## Inputs
 
 You receive from the Implementation Lead:

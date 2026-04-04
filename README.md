@@ -8,6 +8,7 @@ This repository is a Codex plugin repo for an orchestrator-led `development-pipe
 - `skills/development-pipeline/` contains the packaged workflow bundle, role references, and `agents/openai.yaml`
 - `skills/development-pipeline-research/`, `skills/development-pipeline-design/`, `skills/development-pipeline-plan/`, and `skills/development-pipeline-implement/` expose phase-specific entrypoint skills
 - `skills/development-pipeline-validation/` exposes the validation-team entrypoint
+- `skills/development-pipeline-shared-orchestrator/`, `skills/development-pipeline-shared-worker/`, and `skills/development-pipeline-shared-reviewer/` package the shared runtime contracts used by leads, workers, and reviewers
 - `.codex-plugin/plugin.json` defines the plugin manifest used by Codex
 - `.agents/plugins/marketplace.json` exposes the repo as a local marketplace plugin
 - `docs/claude-to-codex-integration.md` documents how the upstream Claude implementation maps into Codex
@@ -16,6 +17,7 @@ The Codex version in this repository keeps the portable parts:
 
 - top-level orchestrator routing across planning, engineering, and validation
 - four-phase workflow and human gates
+- packaged shared behavior for orchestrators, workers, and reviewers
 - role-specific reference prompts
 - reviewer and tester guidance
 - a plugin manifest plus skill packaging
@@ -37,6 +39,12 @@ The packaged workflow exposes this top-level routing model:
 
 Engineering now owns coding plus automated gates, then hands each completed phase to the validation team. Validation coordinates reviewers and tester through a dedicated entrypoint and returns a consolidated pass/fail verdict plus fix checklist.
 
+The authoritative shared behavior contracts are now:
+
+- `development-pipeline-shared-orchestrator` for orchestrators and leads
+- `development-pipeline-shared-worker` for execution workers and tester-style reporting
+- `development-pipeline-shared-reviewer` for actionable review output
+
 ## Local maintenance
 
 - `make test` runs the standard-library `unittest` suite for the repo scripts
@@ -51,6 +59,6 @@ Both commands use only the Python 3 standard library.
 
 If you want to evolve the plugin further, the most valuable additions are:
 
-1. replace reference-only shared workflow labels with packaged Codex-native shared behavior assets
+1. reconcile expertise and session expectations with Codex-native conventions
 2. harden the boundary guard further around staged-only verification and stale-policy detection
 3. refine policy generation for broader real-plan conventions such as docs-only or migration-heavy phases

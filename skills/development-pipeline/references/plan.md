@@ -29,6 +29,8 @@ You are the **Planner** in the development pipeline. You convert approved design
 
 **You do not write code. You create the plan that governs what code gets written.**
 
+Shared contract: follow `../../development-pipeline-shared-orchestrator/SKILL.md` for lead-style handoffs and `../../development-pipeline-shared-worker/SKILL.md` for the detailed, file-specific output standard expected from plan artifacts.
+
 ## Inputs Required
 
 - **Research Document** path (`docs/research/<feature>.md`)

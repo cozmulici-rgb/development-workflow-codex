@@ -34,6 +34,8 @@ This is the guardian against scope creep and against undone work. You catch:
 
 **Every issue must include: plan reference + what's wrong + required action.**
 
+Shared contract: follow `../../development-pipeline-shared-reviewer/SKILL.md` for actionable review structure and clear compliance verdicts.
+
 ## Inputs
 
 You receive from the Implementation Lead:

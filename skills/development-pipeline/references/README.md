@@ -100,6 +100,10 @@ Validation team
 
 - `teams.yaml` is the packaged source-of-truth for the orchestrator-led hierarchy and stage ownership map.
 - The current Codex plugin exposes the orchestrator and phase entrypoints as skills rather than slash commands.
+- Shared behavior is now packaged in Codex-native assets:
+  - `../development-pipeline-shared-orchestrator/SKILL.md`
+  - `../development-pipeline-shared-worker/SKILL.md`
+  - `../development-pipeline-shared-reviewer/SKILL.md`
 - Boundary enforcement in Codex remains policy-driven through `scripts/generate_boundary_policy.py` and `scripts/write_boundary_guard.py`.
 - Claude-specific runtime mechanics such as automatic shared-skill injection or persistent expertise loading are still reference concepts, not active Codex runtime features.
 
@@ -109,10 +113,10 @@ Validation team
 
 | Team | Scope | Primary references |
 |------|-------|--------------------|
-| Orchestrator | Single user-facing routing and synthesized handoff state | `../development-pipeline-orchestrator/SKILL.md`, `teams.yaml` |
-| Planning | Research, design, and plan stages with their approval gates | `research-lead.md`, `design.md`, `plan.md` |
-| Engineering | Implement approved phases, run automated gates, and prepare handoff packages | `implement-lead.md`, `implement-coder.md` |
-| Validation | Review and test the engineering handoff package, then return a verdict | `validation-lead.md`, `reviewer-*.md`, `tester.md` |
+| Orchestrator | Single user-facing routing and synthesized handoff state | `../development-pipeline-orchestrator/SKILL.md`, `../development-pipeline-shared-orchestrator/SKILL.md`, `teams.yaml` |
+| Planning | Research, design, and plan stages with their approval gates | `../development-pipeline-shared-orchestrator/SKILL.md`, `research-lead.md`, `design.md`, `plan.md` |
+| Engineering | Implement approved phases, run automated gates, and prepare handoff packages | `../development-pipeline-shared-orchestrator/SKILL.md`, `../development-pipeline-shared-worker/SKILL.md`, `implement-lead.md`, `implement-coder.md` |
+| Validation | Review and test the engineering handoff package, then return a verdict | `../development-pipeline-shared-orchestrator/SKILL.md`, `../development-pipeline-shared-reviewer/SKILL.md`, `../development-pipeline-shared-worker/SKILL.md`, `validation-lead.md`, `reviewer-*.md`, `tester.md` |
 
 ---
 
@@ -137,3 +141,6 @@ Validation team
 - `development-pipeline-plan`: phase entrypoint for planning work
 - `development-pipeline-implement`: phase entrypoint for implementation work
 - `development-pipeline-validation`: phase entrypoint for validation work
+- `development-pipeline-shared-orchestrator`: shared lead and orchestrator contract
+- `development-pipeline-shared-worker`: shared execution and tester reporting contract
+- `development-pipeline-shared-reviewer`: shared actionable-review contract

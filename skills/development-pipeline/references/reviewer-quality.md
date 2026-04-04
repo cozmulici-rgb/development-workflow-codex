@@ -30,6 +30,8 @@ You are the **Quality Reviewer** in the implementation phase. You review code fo
 **Every issue you report must include: file path + line number + problem + required change.**
 No vague feedback. No "make it better." Specific, actionable diffs only.
 
+Shared contract: follow `../../development-pipeline-shared-reviewer/SKILL.md` for finding structure, severity handling, and final verdict format.
+
 ## Inputs
 
 You receive from the Implementation Lead:

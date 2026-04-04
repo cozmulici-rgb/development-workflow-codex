@@ -191,6 +191,34 @@ class ValidateRepoTests(unittest.TestCase):
         self.assertIn("name: development-pipeline-validation", validation_skill)
         self.assertIn("name: validation-lead", validation_lead)
 
+    def test_shared_codex_native_workflow_assets_exist_and_validate(self) -> None:
+        shared_skills = {
+            "development-pipeline-shared-orchestrator": "skills/development-pipeline-shared-orchestrator/SKILL.md",
+            "development-pipeline-shared-worker": "skills/development-pipeline-shared-worker/SKILL.md",
+            "development-pipeline-shared-reviewer": "skills/development-pipeline-shared-reviewer/SKILL.md",
+        }
+
+        for expected_name, relative_path in shared_skills.items():
+            skill_file = REPO_ROOT / relative_path
+            self.assertTrue(skill_file.is_file(), relative_path)
+
+            frontmatter_errors: list[str] = []
+            frontmatter = validate_repo.parse_frontmatter(skill_file, frontmatter_errors)
+
+            self.assertEqual(frontmatter_errors, [])
+            self.assertEqual(frontmatter.get("name"), expected_name)
+
+    def test_repo_validation_inputs_reference_packaged_shared_skill_names(self) -> None:
+        teams_yaml = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "teams.yaml"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("development-pipeline-shared-orchestrator", teams_yaml)
+        self.assertIn("development-pipeline-shared-worker", teams_yaml)
+        self.assertIn("development-pipeline-shared-reviewer", teams_yaml)
+        self.assertNotIn("skills: [actionable-reviewer]", teams_yaml)
+        self.assertNotIn("skills: [verbose-worker]", teams_yaml)
+
 
 if __name__ == "__main__":
     unittest.main()

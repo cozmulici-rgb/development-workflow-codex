@@ -11,8 +11,7 @@ orchestrator:
   entrypoint: development-pipeline-orchestrator
   role: single-user-interface
   skills:
-    - zero-micromanagement
-    - conversational-response
+    - development-pipeline-shared-orchestrator
   domain:
     read: ["**/*"]
     write: []
@@ -26,8 +25,7 @@ teams:
     lead: research-lead
     color: blue
     skills:
-      - zero-micromanagement
-      - conversational-response
+      - development-pipeline-shared-orchestrator
     domain:
       read: ["**/*"]
       write: ["docs/research/**", "docs/design/**", "docs/plan/**"]
@@ -38,54 +36,54 @@ teams:
     members:
       - name: research-subagent-architecture
         model: haiku
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-patterns
         model: haiku
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-integrations
         model: haiku
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-domain
         model: haiku
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-api
         model: haiku
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-tests
         model: haiku
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-fintech-domain
         model: sonnet
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: design
         model: opus
-        skills: [conversational-response]
+        skills: [development-pipeline-shared-orchestrator]
         domain:
           read: ["**/*"]
           write: ["docs/design/**"]
       - name: plan
-        skills: [vertical-slice-enforcer, conversational-response]
+        skills: [development-pipeline-shared-orchestrator, vertical-slice-enforcer]
         domain:
           read: ["**/*"]
           write: ["docs/plan/**"]
@@ -94,8 +92,7 @@ teams:
     lead: implement-lead
     color: cyan
     skills:
-      - zero-micromanagement
-      - conversational-response
+      - development-pipeline-shared-orchestrator
     domain:
       read: ["**/*"]
       write: []
@@ -103,7 +100,7 @@ teams:
       - implement
     members:
       - name: implement-coder
-        skills: [scope-guardian, verbose-worker]
+        skills: [development-pipeline-shared-worker, scope-guardian]
         domain:
           read: ["**/*"]
           write: ["src/**", "tests/**", "config/**"]
@@ -112,50 +109,49 @@ teams:
     lead: validation-lead
     color: amber
     skills:
-      - zero-micromanagement
-      - conversational-response
+      - development-pipeline-shared-orchestrator
     domain:
       read: ["**/*"]
       write: []
     members:
       - name: validation-lead
         model: opus
-        skills: [zero-micromanagement, conversational-response]
+        skills: [development-pipeline-shared-orchestrator]
         domain:
           read: ["**/*"]
           write: []
       - name: reviewer-quality
-        skills: [actionable-reviewer]
+        skills: [development-pipeline-shared-reviewer]
         domain:
           read: ["**/*"]
           write: []
       - name: reviewer-architecture
-        skills: [actionable-reviewer]
+        skills: [development-pipeline-shared-reviewer]
         domain:
           read: ["**/*"]
           write: []
       - name: reviewer-security
-        skills: [actionable-reviewer]
+        skills: [development-pipeline-shared-reviewer]
         domain:
           read: ["**/*"]
           write: []
       - name: reviewer-plan-compliance
-        skills: [actionable-reviewer]
+        skills: [development-pipeline-shared-reviewer]
         domain:
           read: ["**/*"]
           write: []
       - name: reviewer-fintech-compliance
-        skills: [actionable-reviewer]
+        skills: [development-pipeline-shared-reviewer]
         domain:
           read: ["**/*"]
           write: []
       - name: reviewer-fintech-patterns
-        skills: [actionable-reviewer]
+        skills: [development-pipeline-shared-reviewer]
         domain:
           read: ["**/*"]
           write: []
       - name: tester
-        skills: [verbose-worker]
+        skills: [development-pipeline-shared-worker]
         domain:
           read: ["**/*"]
           write: []

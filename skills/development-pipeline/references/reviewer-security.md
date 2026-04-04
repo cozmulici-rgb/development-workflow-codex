@@ -29,6 +29,8 @@ You are the **Security Reviewer** in the implementation phase. You identify secu
 
 **Every issue must include: file path + line number + vulnerability + required fix.**
 
+Shared contract: follow `../../development-pipeline-shared-reviewer/SKILL.md` for finding structure, severity handling, and explicit verdict output.
+
 ## Inputs
 
 You receive from the Implementation Lead:

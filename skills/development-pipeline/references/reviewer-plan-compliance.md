@@ -5,14 +5,13 @@ tools: Read, Glob, Grep, Bash
 model: sonnet
 color: red
 config: teams.yaml
-expertise: claude/expertise/development-pipeline/reviewer-plan-compliance.md
 ---
 
 ## Boot Sequence
 
-1. Read your expertise file at `claude/expertise/development-pipeline/reviewer-plan-compliance.md` to load accumulated knowledge
-2. Read conversation context and any prior agent outputs relevant to your task
-3. Proceed with your task instructions below
+1. Read the current conversation and the validation handoff for the phase.
+2. Use `../../../docs/codex-agent-memory-and-sessions.md` as the runtime contract for memory and session assumptions.
+3. Proceed with your task instructions below.
 
 ## Domain Boundaries
 
@@ -33,6 +32,8 @@ This is the guardian against scope creep and against undone work. You catch:
 - Acceptance criteria that aren't actually met
 
 **Every issue must include: plan reference + what's wrong + required action.**
+
+Shared contract: follow `../../development-pipeline-shared-reviewer/SKILL.md` for actionable review structure and clear compliance verdicts.
 
 ## Inputs
 

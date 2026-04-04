@@ -1,5 +1,5 @@
 pipeline: development-pipeline
-version: 1
+version: 2
 
 defaults:
   model: sonnet
@@ -7,127 +7,151 @@ defaults:
     - active-listener
     - mental-model
 
+orchestrator:
+  entrypoint: development-pipeline-orchestrator
+  role: single-user-interface
+  skills:
+    - development-pipeline-shared-orchestrator
+  domain:
+    read: ["**/*"]
+    write: []
+  teams:
+    - planning
+    - engineering
+    - validation
+
 teams:
-  research:
+  planning:
     lead: research-lead
     color: blue
     skills:
-      - zero-micromanagement
-      - conversational-response
+      - development-pipeline-shared-orchestrator
     domain:
       read: ["**/*"]
-      write: ["docs/research/**"]
+      write: ["docs/research/**", "docs/design/**", "docs/plan/**"]
+    stages:
+      - research
+      - design
+      - plan
     members:
       - name: research-subagent-architecture
         model: haiku
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-patterns
         model: haiku
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-integrations
         model: haiku
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-domain
         model: haiku
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-api
         model: haiku
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-tests
         model: haiku
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-fintech-domain
         model: sonnet
-        skills: [factual-reporter, verbose-worker]
+        skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
+      - name: design
+        model: opus
+        skills: [development-pipeline-shared-orchestrator]
+        domain:
+          read: ["**/*"]
+          write: ["docs/design/**"]
+      - name: plan
+        skills: [development-pipeline-shared-orchestrator, vertical-slice-enforcer]
+        domain:
+          read: ["**/*"]
+          write: ["docs/plan/**"]
 
-  design:
-    lead: design
-    color: purple
-    model: opus
-    skills:
-      - conversational-response
-    domain:
-      read: ["**/*"]
-      write: ["docs/design/**"]
-
-  plan:
-    lead: plan
-    color: green
-    skills:
-      - vertical-slice-enforcer
-      - conversational-response
-    domain:
-      read: ["**/*"]
-      write: ["docs/plan/**"]
-
-  implement:
+  engineering:
     lead: implement-lead
     color: cyan
     skills:
-      - zero-micromanagement
-      - conversational-response
+      - development-pipeline-shared-orchestrator
+    domain:
+      read: ["**/*"]
+      write: []
+    stages:
+      - implement
+    members:
+      - name: implement-coder
+        skills: [development-pipeline-shared-worker, scope-guardian]
+        domain:
+          read: ["**/*"]
+          write: ["src/**", "tests/**", "config/**"]
+
+  validation:
+    lead: validation-lead
+    color: amber
+    skills:
+      - development-pipeline-shared-orchestrator
     domain:
       read: ["**/*"]
       write: []
     members:
-      - name: implement-coder
-        skills: [scope-guardian, verbose-worker]
+      - name: validation-lead
+        model: opus
+        skills: [development-pipeline-shared-orchestrator]
         domain:
           read: ["**/*"]
-          write: ["src/**", "tests/**", "config/**"]
+          write: []
       - name: reviewer-quality
-        skills: [actionable-reviewer]
+        skills: [development-pipeline-shared-reviewer]
         domain:
           read: ["**/*"]
           write: []
       - name: reviewer-architecture
-        skills: [actionable-reviewer]
+        skills: [development-pipeline-shared-reviewer]
         domain:
           read: ["**/*"]
           write: []
       - name: reviewer-security
-        skills: [actionable-reviewer]
+        skills: [development-pipeline-shared-reviewer]
         domain:
           read: ["**/*"]
           write: []
       - name: reviewer-plan-compliance
-        skills: [actionable-reviewer]
+        skills: [development-pipeline-shared-reviewer]
         domain:
           read: ["**/*"]
           write: []
       - name: reviewer-fintech-compliance
-        skills: [actionable-reviewer]
+        skills: [development-pipeline-shared-reviewer]
         domain:
           read: ["**/*"]
           write: []
       - name: reviewer-fintech-patterns
-        skills: [actionable-reviewer]
+        skills: [development-pipeline-shared-reviewer]
         domain:
           read: ["**/*"]
           write: []
       - name: tester
-        skills: [verbose-worker]
+        skills: [development-pipeline-shared-worker]
         domain:
           read: ["**/*"]
           write: []

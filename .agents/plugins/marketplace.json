@@ -1,7 +1,8 @@
 {
   "name": "development-pipeline-local",
   "interface": {
-    "displayName": "Development Pipeline Local"
+    "displayName": "Development Pipeline Local",
+    "shortDescription": "Local orchestrator-first development workflow"
   },
   "plugins": [
     {

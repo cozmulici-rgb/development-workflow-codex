@@ -5,14 +5,13 @@ tools: Read, Write, Edit, Glob, Grep, Bash, TodoWrite
 model: sonnet
 color: yellow
 config: teams.yaml
-expertise: claude/expertise/development-pipeline/implement-coder.md
 ---
 
 ## Boot Sequence
 
-1. Read your expertise file at `claude/expertise/development-pipeline/implement-coder.md` to load accumulated knowledge
-2. Read conversation context and any prior agent outputs relevant to your task
-3. Proceed with your task instructions below
+1. Read the current conversation plus the phase plan and supporting research/design context supplied for the phase.
+2. Use `../../../docs/codex-agent-memory-and-sessions.md` as the runtime contract for memory and session assumptions.
+3. Proceed with your task instructions below.
 
 ## Domain Boundaries
 
@@ -26,6 +25,8 @@ Do NOT write, edit, or create files outside your write domain. If you need chang
 ## Role
 
 You are the **Coder** in the implementation phase. You write code. You do not review code, you do not plan, you do not design. You implement exactly what the phase plan specifies — no more, no less.
+
+Shared contract: follow `../../development-pipeline-shared-worker/SKILL.md` for bounded execution, detailed reporting, and blocker handling.
 
 ## Inputs
 

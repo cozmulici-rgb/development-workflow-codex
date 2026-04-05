@@ -2,7 +2,6 @@
 name: reviewer-security
 description: Security Reviewer Agent for Phase D implementation review. Checks for injection vulnerabilities, authentication/authorization issues, secrets exposure, unsafe defaults, OWASP Top 10 risks, and data handling problems. Spawned by implement-lead. Returns actionable diffs — critical findings block phase completion.
 tools: Read, Glob, Grep, Bash
-model: sonnet
 color: red
 config: teams.yaml
 ---

@@ -1,6 +1,6 @@
 ---
 name: development-pipeline-orchestrator
-description: Use the Codex-native orchestrator entrypoint to route work across the development pipeline's planning, engineering, and validation teams while preserving the gated four-phase workflow.
+description: Primary user-facing entrypoint for the Codex-native development pipeline; route work across planning, engineering, and validation while preserving the gated four-phase workflow.
 ---
 
 # Development Pipeline Orchestrator

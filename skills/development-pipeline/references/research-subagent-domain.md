@@ -2,7 +2,6 @@
 name: research-subagent-domain
 description: Domain model sub-research agent for Phase A. Scans the codebase for entities, value objects, aggregates, storage models, and domain-to-persistence mappings. Spawned by research-lead. Returns structured findings only — no opinions.
 tools: Read, Glob, Grep, Bash
-model: haiku
 color: cyan
 config: teams.yaml
 ---

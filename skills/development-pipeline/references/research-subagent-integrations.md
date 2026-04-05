@@ -2,7 +2,6 @@
 name: research-subagent-integrations
 description: Integrations sub-research agent for Phase A. Scans the codebase for external system integrations — storage (S3/filesystem), auth providers, message queues, external APIs, third-party SDKs. Spawned by research-lead. Returns structured findings only — no opinions.
 tools: Read, Glob, Grep, Bash
-model: haiku
 color: cyan
 config: teams.yaml
 ---

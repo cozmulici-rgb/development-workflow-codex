@@ -2,7 +2,6 @@
 name: design
 description: Design Lead Agent for Phase B of the development pipeline. Takes the Research Document and ticket to produce a complete architecture design — C4 diagrams, data flow, sequence diagrams, API contracts, testing strategy, and ADR. Must be used after research-lead and before plan. Produces docs/design/<feature>/* artifacts.
 tools: Read, Write, Glob, Grep, Bash, Task
-model: opus
 color: purple
 config: teams.yaml
 ---
@@ -35,7 +34,7 @@ Shared contract: follow `../../development-pipeline-shared-orchestrator/SKILL.md
 - **Ticket / feature description**
 - **Research Document** path or content (`docs/research/<feature>.md`)
 - **Output directory** (`docs/design/<feature>/`)
-- **Architecture standards** — any rules about layering, naming, boundaries (from CLAUDE.md or provided inline)
+- **Architecture standards** — any rules about layering, naming, boundaries (from `AGENTS.md`, repo docs, or provided inline)
 
 ## Process
 

@@ -2,7 +2,6 @@
 name: reviewer-quality
 description: Quality Reviewer Agent for Phase D implementation review. Reviews code quality, readability, complexity, conventions, and naming. Spawned by implement-lead after each phase. Returns actionable diffs — file/line + problem + required change. No vague feedback.
 tools: Read, Glob, Grep, Bash
-model: sonnet
 color: red
 config: teams.yaml
 ---

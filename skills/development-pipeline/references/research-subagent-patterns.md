@@ -2,7 +2,6 @@
 name: research-subagent-patterns
 description: Patterns sub-research agent for Phase A. Scans the codebase for design patterns — builders, repositories, domain models, factories, controllers, services. Spawned by research-lead. Returns structured findings only — no opinions.
 tools: Read, Glob, Grep, Bash
-model: haiku
 color: cyan
 config: teams.yaml
 ---

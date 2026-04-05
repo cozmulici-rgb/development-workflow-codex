@@ -2,7 +2,6 @@ pipeline: development-pipeline
 version: 2
 
 defaults:
-  model: sonnet
   skills:
     - active-listener
     - mental-model
@@ -35,49 +34,41 @@ teams:
       - plan
     members:
       - name: research-subagent-architecture
-        model: haiku
         skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-patterns
-        model: haiku
         skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-integrations
-        model: haiku
         skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-domain
-        model: haiku
         skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-api
-        model: haiku
         skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-tests
-        model: haiku
         skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: research-subagent-fintech-domain
-        model: sonnet
         skills: [development-pipeline-shared-worker, factual-reporter]
         domain:
           read: ["**/*"]
           write: []
       - name: design
-        model: opus
         skills: [development-pipeline-shared-orchestrator]
         domain:
           read: ["**/*"]
@@ -115,7 +106,6 @@ teams:
       write: []
     members:
       - name: validation-lead
-        model: opus
         skills: [development-pipeline-shared-orchestrator]
         domain:
           read: ["**/*"]

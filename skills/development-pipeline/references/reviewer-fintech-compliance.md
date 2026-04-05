@@ -2,7 +2,6 @@
 name: reviewer-fintech-compliance
 description: FinTech Compliance Reviewer for Phase D implementation review. Checks for PCI-DSS scope violations, missing AML/KYC flows, incomplete audit trails, sanctions screening placement, and GDPR retention issues. Spawned by implement-lead. Returns actionable diffs — critical findings block phase completion.
 tools: Read, Glob, Grep, Bash
-model: sonnet
 color: red
 config: teams.yaml
 ---

@@ -1,0 +1,28 @@
+{
+  "allow_new_files": true,
+  "allowed_touched_files": [
+    "scripts/record_workflow_session.py",
+    "tests/test_record_workflow_session.py",
+    "docs/session-recorder.md",
+    "README.md",
+    "AGENTS.md",
+    "docs/codex-agent-memory-and-sessions.md",
+    "docs/orchestrator_agents_teams.md",
+    "docs/codex-write-boundary-guard.md",
+    "tests/test_validate_repo.py"
+  ],
+  "allowed_write_globs": [
+    "scripts/**",
+    "tests/**",
+    "docs/**",
+    "README.md",
+    "AGENTS.md"
+  ],
+  "blocked_write_globs": [],
+  "feature": "artifact-memory-and-handoffs",
+  "mode": "enforce",
+  "phase": "phase-06",
+  "require_clean_git_start": false,
+  "role": "implement-coder",
+  "version": 1
+}

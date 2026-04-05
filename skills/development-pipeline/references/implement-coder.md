@@ -2,7 +2,6 @@
 name: implement-coder
 description: Coder Agent for Phase D of the development pipeline. Writes production code and tests for a single phase, strictly following the phase plan. Spawned by implement-lead. Never reviews its own work. Stays within phase scope. Returns a structured implementation report.
 tools: Read, Write, Edit, Glob, Grep, Bash, TodoWrite
-model: sonnet
 color: yellow
 config: teams.yaml
 ---

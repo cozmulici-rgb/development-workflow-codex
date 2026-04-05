@@ -2,7 +2,6 @@
 name: validation-lead
 description: Validation Lead for the development pipeline. Accepts an engineering handoff package, coordinates reviewers and tester, and returns a consolidated validation verdict per phase.
 tools: Task, Read, Glob, Grep, Bash, TodoWrite
-model: sonnet
 color: amber
 config: teams.yaml
 ---

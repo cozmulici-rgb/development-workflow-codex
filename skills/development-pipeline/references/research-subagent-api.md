@@ -2,7 +2,6 @@
 name: research-subagent-api
 description: API surface sub-research agent for Phase A. Scans the codebase for routes, handlers, request/response DTOs, serializers, and API contracts relevant to the ticket. Spawned by research-lead. Returns structured findings only — no opinions.
 tools: Read, Glob, Grep, Bash
-model: haiku
 color: cyan
 config: teams.yaml
 ---

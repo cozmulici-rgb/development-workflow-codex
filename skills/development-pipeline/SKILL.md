@@ -1,12 +1,12 @@
 ---
 name: development-pipeline
-description: Package the full development-pipeline workflow beneath an explicit orchestrator model, preserving the gated research, design, plan, and implement phases as internal execution stages.
+description: Internal reference bundle for maintainers or advanced workflow work on the development-pipeline package; use it to inspect or update the packaged references behind the orchestrator-led workflow.
 ---
 
 # Development Pipeline
 
 ## Overview
-This skill is the packaged workflow bundle behind the explicit `development-pipeline-orchestrator` entrypoint. Use it when you need the full reference set for the orchestrated model: planning routes through research, design, and plan; engineering routes through implement; validation remains a visible team concern around review and test gates.
+This skill is the packaged reference bundle behind the explicit `development-pipeline-orchestrator` entrypoint. Use it for maintainer work on the workflow package itself, or when you need to inspect the full packaged reference set behind the orchestrated model. For normal workflow execution, start from `development-pipeline-orchestrator` instead.
 
 ## Typical workflow
 1. Start from `references/README.md` and `references/teams.yaml` to align on the orchestrator-led hierarchy before loading stage-specific references.
@@ -19,8 +19,8 @@ This skill is the packaged workflow bundle behind the explicit `development-pipe
 - For fintech work, also consult `references/reviewer-fintech-compliance.md`, `references/reviewer-fintech-patterns.md`, and `references/research-subagent-fintech-domain.md`.
 - Use `references/tester.md` for test execution steps, regression reporting, and final readiness checks.
 
-## Claude Source Mapping
-This plugin intentionally tracks the current upstream Claude workflow from `../../mysites/ai-toolbox-experiments/claude/agents/development-pipeline/`. The files in `references/` are the Codex-packaged copies of that workflow. `references/teams.yaml` is carried as packaged topology context for the orchestrator, planning, engineering, and validation layers even though Codex does not consume Claude `teams.yaml` directly at runtime.
+## Upstream Source Mapping
+This plugin tracks an upstream development-pipeline workflow maintained outside this package. The files in `references/` are the Codex-packaged copies adapted for this repository. `references/teams.yaml` is carried as packaged topology context for the orchestrator, planning, engineering, and validation layers even though Codex does not consume that file directly at runtime.
 
 ## Validation
 Run `~/.codex/tools/skill-validator/quick_validate.py <skill-dir-or-tree>` after editing this skill to catch frontmatter, naming, link, and metadata issues early. Use `~/.codex/skills/` to validate every installed skill tree.

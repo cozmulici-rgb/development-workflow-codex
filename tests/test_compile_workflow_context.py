@@ -71,15 +71,56 @@ class CompileWorkflowContextTests(unittest.TestCase):
         self.assertNotIn("engineering-to-validation.md", text)
 
     def test_compile_role_context_rejects_draft_inputs(self) -> None:
-        validation_context = self.root / "docs" / "context" / "example-feature" / "validation-context.md"
-        validation_context.write_text(
-            "# Validation Context\n\n## Status\n\n| Field | Value |\n|-------|-------|\n| Status | `draft` |\n",
+        engineering_context = self.root / "docs" / "context" / "example-feature" / "engineering-context.md"
+        engineering_context.write_text(
+            "# Engineering Context\n\n## Status\n\n| Field | Value |\n|-------|-------|\n| Status | `draft` |\n",
             encoding="utf-8",
         )
 
         with self.patched_module():
             with self.assertRaisesRegex(ValueError, "not a trusted input"):
                 compile_workflow_context.compile_role_context("example-feature", "validation")
+
+    def test_compile_role_context_skips_draft_validation_context_for_first_validation_pass(self) -> None:
+        context_status = self.root / "docs" / "context" / "example-feature" / "context-status.md"
+        context_status.write_text(
+            "# Context Status\n\n"
+            "## Durable Artifact Index\n\n"
+            "| Artifact | Role | Status | Freshness | Superseded By | Notes |\n"
+            "|----------|------|--------|-----------|---------------|-------|\n"
+            "| `docs/context/example-feature/engineering-context.md` | Engineering | `active` | Current | `No` | Safe |\n"
+            "| `docs/context/example-feature/validation-context.md` | Validation | `draft` | Pending final verdict | `No` | Provisional |\n"
+            "| `docs/handoffs/example-feature/engineering-to-validation.md` | Engineering | `ready` | Current | `No` | Safe |\n",
+            encoding="utf-8",
+        )
+
+        with self.patched_module():
+            output = compile_workflow_context.compile_role_context("example-feature", "validation")
+
+        text = output.read_text(encoding="utf-8")
+        self.assertIn("docs/context/example-feature/engineering-context.md", text)
+        self.assertIn("docs/handoffs/example-feature/engineering-to-validation.md", text)
+        self.assertNotIn("### Validation Context", text)
+        self.assertNotIn("- `docs/context/example-feature/validation-context.md` (`", text)
+
+    def test_compile_role_context_includes_trusted_validation_context_for_revalidation(self) -> None:
+        context_status = self.root / "docs" / "context" / "example-feature" / "context-status.md"
+        context_status.write_text(
+            "# Context Status\n\n"
+            "## Durable Artifact Index\n\n"
+            "| Artifact | Role | Status | Freshness | Superseded By | Notes |\n"
+            "|----------|------|--------|-----------|---------------|-------|\n"
+            "| `docs/context/example-feature/engineering-context.md` | Engineering | `active` | Current | `No` | Safe |\n"
+            "| `docs/context/example-feature/validation-context.md` | Validation | `active` | Current | `No` | Safe |\n"
+            "| `docs/handoffs/example-feature/engineering-to-validation.md` | Engineering | `ready` | Current | `No` | Safe |\n",
+            encoding="utf-8",
+        )
+
+        with self.patched_module():
+            output = compile_workflow_context.compile_role_context("example-feature", "validation")
+
+        text = output.read_text(encoding="utf-8")
+        self.assertIn("docs/context/example-feature/validation-context.md", text)
 
     def test_compile_role_context_rejects_needs_human_review_handoff(self) -> None:
         planning_handoff = self.root / "docs" / "handoffs" / "example-feature" / "planning-to-engineering.md"

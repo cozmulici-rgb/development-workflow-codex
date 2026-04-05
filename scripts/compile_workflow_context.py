@@ -94,10 +94,19 @@ def role_inputs(feature: str, role: str) -> list[Path]:
     if role == "validation":
         return common + [
             docs_context / "engineering-context.md",
-            docs_context / "validation-context.md",
             docs_handoffs / "engineering-to-validation.md",
         ]
     raise ValueError(f"Unsupported role: {role}")
+
+
+def optional_role_inputs(feature: str, role: str) -> list[Path]:
+    docs_context = feature_context_dir(feature)
+
+    if role == "validation":
+        return [
+            docs_context / "validation-context.md",
+        ]
+    return []
 
 
 def role_output(feature: str, role: str) -> Path:
@@ -169,6 +178,19 @@ def validate_input_state(
         )
 
 
+def is_trusted_input(
+    path: Path,
+    role: str,
+    *,
+    context_status_index: dict[str, dict[str, str]] | None = None,
+) -> bool:
+    try:
+        validate_input_state(path, role, context_status_index=context_status_index)
+    except ValueError:
+        return False
+    return True
+
+
 def render_brief(feature_name: str, role: str, inputs: list[Path]) -> str:
     lines = [
         f"# Compiled {role.capitalize()} Context: {feature_name}",
@@ -227,6 +249,9 @@ def compile_role_context(feature: str, role: str, output: Path | None = None) ->
     context_status_index = read_context_status_index(feature_context_dir(feature) / "context-status.md")
     for path in inputs:
         validate_input_state(path, role, context_status_index=context_status_index)
+    for path in optional_role_inputs(feature, role):
+        if is_trusted_input(path, role, context_status_index=context_status_index):
+            inputs.append(path)
 
     destination = ensure_repo_path(output if output is not None else role_output(feature, role), "Output path")
     destination.parent.mkdir(parents=True, exist_ok=True)

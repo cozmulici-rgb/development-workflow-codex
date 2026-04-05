@@ -30,6 +30,12 @@ class ValidateRepoTests(unittest.TestCase):
             {
                 "name": "example-plugin",
                 "version": "0.1.0",
+                "homepage": "https://github.com/example/example-plugin",
+                "bugs": {"url": "https://github.com/example/example-plugin/issues"},
+                "repository": {
+                    "type": "git",
+                    "url": "https://github.com/example/example-plugin.git",
+                },
                 "skills": "skills",
             },
         )
@@ -47,6 +53,10 @@ class ValidateRepoTests(unittest.TestCase):
         self._write(
             "skills/example-skill/SKILL.md",
             "---\nname: example-skill\ndescription: Example skill\n---\n\nBody\n",
+        )
+        self._write(
+            ".github/workflows/release.yml",
+            "name: Release Plugin\non:\n  workflow_dispatch:\n",
         )
 
     def tearDown(self) -> None:
@@ -86,6 +96,9 @@ class ValidateRepoTests(unittest.TestCase):
                     ),
                 )
             )
+            stack.enter_context(
+                patch.object(validate_repo, "RELEASE_WORKFLOW", self.root / ".github" / "workflows" / "release.yml")
+            )
             yield
 
     def test_main_passes_for_valid_fixture(self) -> None:
@@ -118,6 +131,25 @@ class ValidateRepoTests(unittest.TestCase):
                 "skills": "../elsewhere",
             },
         )
+
+        with self.patched_module():
+            self.assertEqual(validate_repo.main(), 1)
+
+    def test_main_rejects_missing_github_distribution_metadata(self) -> None:
+        self._write_json(
+            ".codex-plugin/plugin.json",
+            {
+                "name": "example-plugin",
+                "version": "0.1.0",
+                "skills": "skills",
+            },
+        )
+
+        with self.patched_module():
+            self.assertEqual(validate_repo.main(), 1)
+
+    def test_main_rejects_missing_release_workflow(self) -> None:
+        (self.root / ".github" / "workflows" / "release.yml").unlink()
 
         with self.patched_module():
             self.assertEqual(validate_repo.main(), 1)
@@ -399,6 +431,18 @@ class ValidateRepoTests(unittest.TestCase):
         self.assertIn("diagnostics aid", orchestrator_doc)
         self.assertIn("maintainer diagnostics", boundary_doc)
         self.assertIn("not part of the packaged workflow contract", session_doc)
+
+    def test_plugin_manifest_and_release_workflow_support_github_distribution(self) -> None:
+        manifest = json.loads((REPO_ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        release_workflow = (REPO_ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+
+        self.assertEqual(manifest["repository"]["type"], "git")
+        self.assertIn("https://github.com/", manifest["homepage"])
+        self.assertIn("https://github.com/", manifest["bugs"]["url"])
+        self.assertIn("https://github.com/", manifest["repository"]["url"])
+        self.assertIn("actions/checkout@v4", release_workflow)
+        self.assertIn("python3 scripts/package_plugin.py", release_workflow)
+        self.assertIn("dist/*.zip", release_workflow)
 
 
 if __name__ == "__main__":

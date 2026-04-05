@@ -92,14 +92,20 @@ For most users, the correct starting point is `development-pipeline-orchestrator
 
 ## Installation
 
-Install this repository as a local Codex plugin, then enable `development-pipeline` in your Codex environment.
+Install this repository as a local Codex plugin, or use the GitHub repository and release assets as the distribution source.
 
 The repository already includes the required plugin metadata:
 
 - `.codex-plugin/plugin.json`
 - `.agents/plugins/marketplace.json`
 
-If your Codex setup uses a local marketplace, point it at this repository and install the plugin from that local source.
+GitHub-native distribution options:
+
+- clone the GitHub repository and point your local Codex marketplace at that checkout
+- download the packaged zip from GitHub Releases and install from the extracted archive
+- fork the repository and publish your own tagged releases if you want a customized distribution channel
+
+The repository ships GitHub metadata in `.codex-plugin/plugin.json`, and tagged releases build a distributable zip through `.github/workflows/release.yml`.
 
 ## Recommended Usage
 

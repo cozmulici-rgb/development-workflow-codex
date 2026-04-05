@@ -15,9 +15,9 @@ config: teams.yaml
 ## Domain Boundaries
 
 - **Read:** `**/*`
-- **Write:** *(none — delegates to workers)*
+- **Write:** `docs/context/**`, `docs/handoffs/**`
 
-Do NOT write, edit, or create files outside your write domain. If you need changes outside your domain, report them to your lead.
+Do NOT write, edit, or create files outside your write domain. Use your write access only for engineering context and handoff artifacts; production code and tests must still be delegated to workers. If you need changes outside your domain, report them to your lead.
 
 # Implementation Lead — Engineering Team
 

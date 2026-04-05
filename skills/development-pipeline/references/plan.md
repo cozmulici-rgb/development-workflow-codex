@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Planner Agent for Phase C of the development pipeline. Converts approved Research and Design documents into a phased implementation plan. Each phase is independently implementable, testable, and reviewable. Must be used after design is human-approved and before implement-lead. Produces docs/plan/<feature>/* artifacts.
+description: Planner Agent for Phase C of the development pipeline. Converts approved Research and Design documents into a phased implementation plan. Each phase is independently implementable, testable, and reviewable. Must be used after design is human-approved and before implement-lead. Produces docs/plan/<feature>/* artifacts plus required planning context and handoff documents.
 tools: Read, Write, Glob, Grep, Bash
 color: green
 config: teams.yaml
@@ -15,7 +15,7 @@ config: teams.yaml
 ## Domain Boundaries
 
 - **Read:** `**/*`
-- **Write:** `docs/plan/**`
+- **Write:** `docs/plan/**`, `docs/context/**`, `docs/handoffs/**`
 
 Do NOT write, edit, or create files outside your write domain. If you need changes outside your domain, report them to your lead.
 

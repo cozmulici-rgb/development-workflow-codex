@@ -16,6 +16,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent.parent
 STATE_DIR = ROOT / ".codex-boundary"
 STATE_FILE = STATE_DIR / "session.json"
+WORKFLOW_ARTIFACT_DIRS = {"context", "handoffs", "research", "design", "plan"}
 
 
 @dataclass
@@ -42,6 +43,15 @@ def relative_to_root(path: Path) -> str:
 def is_runtime_state_path(path: str) -> bool:
     state_root = relative_to_root(STATE_DIR)
     return path == state_root or path.startswith(f"{state_root}/")
+
+
+def is_workflow_artifact_path(path: str) -> bool:
+    parts = Path(path).parts
+    return len(parts) > 1 and parts[0] == "docs" and parts[1] in WORKFLOW_ARTIFACT_DIRS
+
+
+def violation_suffix(path: str) -> str:
+    return " (artifact path)" if is_workflow_artifact_path(path) else ""
 
 
 def load_policy(policy_path: Path) -> dict[str, Any]:
@@ -134,7 +144,15 @@ def collect_changes() -> list[Change]:
 
 def matches_any(path: str, patterns: list[str]) -> bool:
     candidate = Path(path)
-    return any(candidate.match(pattern) for pattern in patterns)
+    for pattern in patterns:
+        if pattern.endswith("/**"):
+            prefix = pattern[:-3].rstrip("/")
+            if path == prefix or path.startswith(f"{prefix}/"):
+                return True
+            continue
+        if candidate.match(pattern):
+            return True
+    return False
 
 
 def changed_paths(changes: list[Change]) -> list[str]:
@@ -229,20 +247,20 @@ def verify_policy(policy: dict[str, Any]) -> tuple[bool, list[str]]:
 
     for path in effective_changed:
         if blocked_globs and matches_any(path, blocked_globs):
-            violations.append(f"{path}: matches blocked_write_globs")
+            violations.append(f"{path}: matches blocked_write_globs{violation_suffix(path)}")
             continue
         if allowed_globs and not matches_any(path, allowed_globs):
-            violations.append(f"{path}: outside allowed_write_globs")
+            violations.append(f"{path}: outside allowed_write_globs{violation_suffix(path)}")
             continue
         if allowed_files and path not in allowed_files:
-            violations.append(f"{path}: not listed in allowed_touched_files")
+            violations.append(f"{path}: not listed in allowed_touched_files{violation_suffix(path)}")
 
     if not allow_new:
         for change in changes:
             if change.path not in effective_changed:
                 continue
             if change.status == "A" or change.status == "??":
-                violations.append(f"{change.path}: new files are not allowed by policy")
+                violations.append(f"{change.path}: new files are not allowed by policy{violation_suffix(change.path)}")
 
     return (not violations, violations)
 
@@ -331,13 +349,13 @@ def cmd_stage(args: argparse.Namespace) -> int:
     invalid: list[str] = []
     for path in requested:
         if blocked_globs and matches_any(path, blocked_globs):
-            invalid.append(f"{path}: matches blocked_write_globs")
+            invalid.append(f"{path}: matches blocked_write_globs{violation_suffix(path)}")
             continue
         if allowed_globs and not matches_any(path, allowed_globs):
-            invalid.append(f"{path}: outside allowed_write_globs")
+            invalid.append(f"{path}: outside allowed_write_globs{violation_suffix(path)}")
             continue
         if allowed_files and path not in allowed_files:
-            invalid.append(f"{path}: not listed in allowed_touched_files")
+            invalid.append(f"{path}: not listed in allowed_touched_files{violation_suffix(path)}")
 
     if invalid:
         print("Refusing to stage invalid paths")

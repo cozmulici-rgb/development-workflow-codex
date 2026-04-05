@@ -218,3 +218,15 @@ Summary:
 
 Ready for human review and Design phase.
 ```
+
+The completed Research Document must also be handoff-ready for Design and Plan:
+
+- make the boundaries section explicit enough to copy into a downstream handoff package
+- ensure every claimed input artifact is named with a concrete repo path
+- summarize unresolved unknowns so the next stage can surface them in its handoff package without reconstructing prior chat context
+
+When research produces durable facts that later stages will need repeatedly, summarize them so Planning can seed `docs/context/<feature>/planning-context.md` without inventing new interpretation.
+
+Until the research document is human-approved, treat it as draft input only. Downstream stages may inspect it for preparation, but they must not rely on it as an approved durable artifact.
+
+When planning uses a compiled brief, the research document and any planning-context artifacts are the source inputs for that compiler rather than any implicit research memory.

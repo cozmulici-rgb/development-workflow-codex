@@ -18,6 +18,7 @@ REQUIRED_ROOT_FILES = (
     ROOT / "README.md",
     ROOT / "AGENTS.md",
 )
+RELEASE_WORKFLOW = ROOT / ".github" / "workflows" / "release.yml"
 SKILL_FRONTMATTER_RE = re.compile(
     r"\A---\n(?P<frontmatter>.*?)\n---\n",
     re.DOTALL,
@@ -124,6 +125,33 @@ def validate_marketplace(
         )
 
 
+def validate_github_distribution(plugin_manifest: dict, errors: list[str]) -> None:
+    homepage = plugin_manifest.get("homepage")
+    if not isinstance(homepage, str) or not homepage.startswith("https://github.com/"):
+        fail("Plugin manifest must include a GitHub homepage URL", errors)
+
+    bugs = plugin_manifest.get("bugs")
+    if not isinstance(bugs, dict):
+        fail("Plugin manifest must include a 'bugs' object", errors)
+    else:
+        bugs_url = bugs.get("url")
+        if not isinstance(bugs_url, str) or not bugs_url.startswith("https://github.com/"):
+            fail("Plugin manifest must include a GitHub issues URL", errors)
+
+    repository = plugin_manifest.get("repository")
+    if not isinstance(repository, dict):
+        fail("Plugin manifest must include a 'repository' object", errors)
+    else:
+        if repository.get("type") != "git":
+            fail("Plugin manifest repository.type must be 'git'", errors)
+        repository_url = repository.get("url")
+        if not isinstance(repository_url, str) or not repository_url.startswith("https://github.com/"):
+            fail("Plugin manifest must include a GitHub repository URL", errors)
+
+    if not RELEASE_WORKFLOW.is_file():
+        fail("Missing required file: .github/workflows/release.yml", errors)
+
+
 def validate_boundary_policies(errors: list[str]) -> None:
     for policy_file in sorted(ROOT.glob(BOUNDARY_POLICY_GLOB)):
         payload = load_json(policy_file, errors)
@@ -177,6 +205,8 @@ def main() -> int:
 
     if plugin_manifest and marketplace_manifest:
         validate_marketplace(plugin_manifest, marketplace_manifest, errors)
+    if plugin_manifest:
+        validate_github_distribution(plugin_manifest, errors)
 
     validate_boundary_policies(errors)
 

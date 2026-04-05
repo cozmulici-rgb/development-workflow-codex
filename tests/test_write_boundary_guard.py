@@ -149,6 +149,28 @@ class WriteBoundaryGuardTests(TempRepoTestCase):
         self.assertFalse(ok)
         self.assertIn("policy requires a clean git start for this policy; run 'start' before making changes", violations)
 
+    def test_verify_policy_labels_artifact_boundary_violations(self) -> None:
+        policy_path = self.write_policy(
+            self.base_policy(
+                allowed_write_globs=["docs/context/**"],
+                blocked_write_globs=[],
+                allowed_touched_files=["docs/context/example-feature/planning-context.md"],
+            )
+        )
+        self.run_git("add", str(policy_path.relative_to(self.repo_root)))
+        self.run_git("commit", "-m", "Add policy")
+        self.write_file("docs/context/example-feature/unlisted.md", "artifact\n")
+
+        with self.patched_boundary_guard(write_boundary_guard):
+            policy = write_boundary_guard.load_policy(policy_path)
+            ok, violations = write_boundary_guard.verify_policy(policy)
+
+        self.assertFalse(ok)
+        self.assertIn(
+            "docs/context/example-feature/unlisted.md: not listed in allowed_touched_files (artifact path)",
+            violations,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

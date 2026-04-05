@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PHASE_FILE_RE = re.compile(r"^phase-\d+\.md$")
 SECTION_RE = re.compile(r"^##\s+(.+?)\s*$", re.MULTILINE)
 INLINE_CODE_RE = re.compile(r"`([^`]+)`")
+WORKFLOW_ARTIFACT_DIRS = {"context", "handoffs", "research", "design", "plan"}
 
 
 def split_sections(text: str) -> dict[str, str]:
@@ -85,6 +86,8 @@ def derive_write_globs(paths: list[str]) -> list[str]:
             continue
         if len(parts) == 1:
             candidate = parts[0]
+        elif parts[0] == "docs" and len(parts) > 1 and parts[1] in WORKFLOW_ARTIFACT_DIRS:
+            candidate = f"docs/{parts[1]}/**"
         else:
             candidate = f"{parts[0]}/**"
         if candidate not in globs:

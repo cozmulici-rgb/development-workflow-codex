@@ -15,9 +15,9 @@ config: teams.yaml
 ## Domain Boundaries
 
 - **Read:** `**/*`
-- **Write:** *(none — delegates to workers)*
+- **Write:** `docs/context/**`, `docs/handoffs/**`
 
-Do NOT write, edit, or create files outside your write domain. If you need changes outside your domain, report them to your lead.
+Do NOT write, edit, or create files outside your write domain. Use your write access only for engineering context and handoff artifacts; production code and tests must still be delegated to workers. If you need changes outside your domain, report them to your lead.
 
 # Implementation Lead — Engineering Team
 
@@ -86,6 +86,16 @@ Phase context for Coder:
 - Prior phases: [summary of what was built in previous phases]
 ```
 
+Also load the approved planning-to-engineering handoff package when it exists:
+
+- `docs/handoffs/<feature>/planning-to-engineering.md`
+- `docs/context/<feature>/planning-context.md`
+
+Treat that handoff package as the portable summary of approved inputs, phase scope, and planning constraints. If it conflicts with the approved plan artifacts, stop and escalate the mismatch.
+Treat the planning context artifact as the durable fact layer for constraints that should continue across multiple implementation phases.
+Reject draft, stale, or superseded context artifacts unless the current handoff explicitly records a human-approved override.
+When an engineering compiled brief exists, treat it as a derived convenience artifact only. The trusted source inputs remain the approved plan, context, and handoff artifacts it was compiled from.
+
 ### Step 1b — Delegate to Coder Agent
 
 Invoke `implement-coder` via Task tool with the context pack.
@@ -119,7 +129,7 @@ If any automated gate fails:
 
 ### Step 1d — Prepare Validation Handoff
 
-When automated gates pass, prepare the validation package:
+When automated gates pass, prepare the validation package and write the engineering-to-validation handoff package:
 
 - The phase plan (`phase-XX.md`)
 - The phase boundary policy (`boundary.phase-XX.json`)
@@ -127,8 +137,13 @@ When automated gates pass, prepare the validation package:
 - The research document
 - The code diff or explicit file list changed
 - The automated gate results
+- `docs/context/<feature>/engineering-context.md` with durable implementation facts, accepted constraints, and refresh conditions for later phases
+- `docs/handoffs/<feature>/engineering-to-validation.md` with metadata, approved inputs, scope, open questions, gate status, and the next required validation action
 
 Then hand the package to the validation lead for review and test orchestration.
+
+If engineering updates a durable artifact, record enough freshness information that validation can tell whether it is current, draft, or superseded.
+If a compiled engineering brief is used, regenerate it from approved artifacts instead of editing the compiled output directly.
 
 ### Step 1e — Fix Loop
 

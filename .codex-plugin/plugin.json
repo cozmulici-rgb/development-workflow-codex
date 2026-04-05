@@ -2,6 +2,14 @@
   "name": "development-pipeline",
   "version": "0.1.0",
   "description": "Codex plugin for an orchestrator-led development pipeline that preserves gated research, design, planning, implementation, and validation workflow guidance.",
+  "homepage": "https://github.com/cozmulici-rgb/development-workflow-codex",
+  "bugs": {
+    "url": "https://github.com/cozmulici-rgb/development-workflow-codex/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cozmulici-rgb/development-workflow-codex.git"
+  },
   "author": {
     "name": "Veaceslav Cozmulici"
   },

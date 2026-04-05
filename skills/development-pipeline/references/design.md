@@ -253,6 +253,7 @@ Before finalizing, verify:
 - [ ] Performance risks documented
 - [ ] At least one ADR for any non-obvious decision
 - [ ] Out-of-scope boundaries explicit
+- [ ] Planning can assemble a handoff package from the approved design artifacts without relying on chat history
 
 ## Output
 
@@ -278,3 +279,16 @@ Open questions for human review:
 
 Ready for human review. Do not proceed to Plan until approved.
 ```
+
+The approved design set must be handoff-ready for Planning:
+
+- keep the affected artifact paths explicit
+- make open questions and out-of-scope boundaries easy to lift into a downstream handoff package
+- ensure contracts, testing expectations, and ADR constraints are stated plainly enough to be referenced without replaying the design conversation
+
+The approved design set must also be context-ready for durable planning artifacts:
+
+- summarize accepted design decisions that should persist in `docs/context/<feature>/planning-context.md`
+- make constraints and tradeoffs explicit enough for later engineering and validation context files to inherit without ambiguity
+
+Design outputs remain draft until the required human approval gates pass. Planning and engineering must consume only the approved, latest design set and treat superseded drafts as historical context rather than active inputs.

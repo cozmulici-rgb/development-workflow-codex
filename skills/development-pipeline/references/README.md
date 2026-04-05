@@ -106,7 +106,11 @@ Validation team
   - `../development-pipeline-shared-reviewer/SKILL.md`
 - Memory and session behavior follow `../../../docs/codex-agent-memory-and-sessions.md`.
 - Boundary enforcement in Codex remains policy-driven through `scripts/generate_boundary_policy.py` and `scripts/write_boundary_guard.py`.
-- Persistent expertise loading is not part of the packaged Codex runtime contract. Durable handoff state lives in explicit repo artifacts such as research, design, plan, boundary, and validation outputs.
+- Persistent expertise loading is not part of the packaged Codex runtime contract. Durable workflow state lives in explicit repo artifacts such as research, design, plan, `docs/context/` artifacts, `docs/handoffs/` packages, boundary, and validation outputs.
+- Handoff packages are the required cross-team coordination unit whenever work moves between planning, engineering, validation, or the orchestrator.
+- Artifact-memory files are the durable fact layer whenever a summary should stay useful beyond a single handoff.
+- Downstream stages should trust only approved, current, non-superseded durable artifacts unless the active handoff records a human override.
+- Compiled role briefs are optional derived artifacts that may be read when a compact deterministic summary is useful.
 
 ---
 
@@ -114,10 +118,10 @@ Validation team
 
 | Team | Scope | Primary references |
 |------|-------|--------------------|
-| Orchestrator | Single user-facing routing and synthesized handoff state | `../development-pipeline-orchestrator/SKILL.md`, `../development-pipeline-shared-orchestrator/SKILL.md`, `teams.yaml` |
-| Planning | Research, design, and plan stages with their approval gates | `../development-pipeline-shared-orchestrator/SKILL.md`, `research-lead.md`, `design.md`, `plan.md` |
-| Engineering | Implement approved phases, run automated gates, and prepare handoff packages | `../development-pipeline-shared-orchestrator/SKILL.md`, `../development-pipeline-shared-worker/SKILL.md`, `implement-lead.md`, `implement-coder.md` |
-| Validation | Review and test the engineering handoff package, then return a verdict | `../development-pipeline-shared-orchestrator/SKILL.md`, `../development-pipeline-shared-reviewer/SKILL.md`, `../development-pipeline-shared-worker/SKILL.md`, `validation-lead.md`, `reviewer-*.md`, `tester.md` |
+| Orchestrator | Single user-facing routing and synthesized handoff state | `../development-pipeline-orchestrator/SKILL.md`, `../development-pipeline-shared-orchestrator/SKILL.md`, `teams.yaml`, `../../../docs/handoffs/README.md` |
+| Planning | Research, design, and plan stages with their approval gates | `../development-pipeline-shared-orchestrator/SKILL.md`, `research-lead.md`, `design.md`, `plan.md`, `../../../docs/context/README.md` |
+| Engineering | Implement approved phases, run automated gates, and prepare handoff packages | `../development-pipeline-shared-orchestrator/SKILL.md`, `../development-pipeline-shared-worker/SKILL.md`, `implement-lead.md`, `implement-coder.md`, `../../../docs/context/README.md`, `../../../docs/handoffs/README.md` |
+| Validation | Review and test the engineering handoff package, then return a verdict | `../development-pipeline-shared-orchestrator/SKILL.md`, `../development-pipeline-shared-reviewer/SKILL.md`, `../development-pipeline-shared-worker/SKILL.md`, `validation-lead.md`, `reviewer-*.md`, `tester.md`, `../../../docs/context/README.md`, `../../../docs/handoffs/README.md` |
 
 ---
 
@@ -125,11 +129,11 @@ Validation team
 
 | Internal phase | Owning team | Lead reference | Outputs | Human gate |
 |----------------|-------------|----------------|---------|------------|
-| Research | Planning | `research-lead` | `docs/research/<feature>.md` | Approve research doc |
-| Design | Planning | `design` | `discussion.md`, design artifacts, `structure-outline.md` | Approve discussion, then design artifacts |
-| Plan | Planning | `plan` | `docs/plan/<feature>/` | Approve plan |
-| Implement | Engineering | `implement-lead` | code, tests, automated gate results, handoff package | Validation reviews output |
-| Validate | Validation | `validation-lead` | consolidated review verdict, fix checklist, pass/fail handoff | Orchestrator decides whether to proceed |
+| Research | Planning | `research-lead` | `docs/research/<feature>.md` plus context-seeding facts for downstream stages | Approve research doc |
+| Design | Planning | `design` | `discussion.md`, design artifacts, `structure-outline.md`, and durable design-context inputs | Approve discussion, then design artifacts |
+| Plan | Planning | `plan` | `docs/plan/<feature>/`, `docs/context/<feature>/planning-context.md`, and a planning-to-engineering handoff package | Approve plan |
+| Implement | Engineering | `implement-lead` | code, tests, automated gate results, `docs/context/<feature>/engineering-context.md`, engineering-to-validation handoff package | Validation reviews output |
+| Validate | Validation | `validation-lead` | consolidated review verdict, fix checklist, `docs/context/<feature>/validation-context.md`, validation verdict handoff | Orchestrator decides whether to proceed |
 
 ---
 
@@ -137,7 +141,8 @@ Validation team
 
 - Persistent per-agent memory is out of scope for this plugin.
 - The current conversation and explicit repo artifacts are the only guaranteed context sources.
-- Durable handoffs live in `docs/research/`, `docs/design/`, `docs/plan/`, generated boundary policies, and the validation outputs described by the workflow.
+- Durable handoffs live in `docs/research/`, `docs/design/`, `docs/plan/`, `docs/context/`, `docs/handoffs/`, generated boundary policies, and the validation outputs described by the workflow.
+- Draft, stale, or superseded durable artifacts are not valid downstream inputs unless explicitly allowed by the current handoff and human decision.
 - Optional local logs may exist in the surrounding environment, but they are not required or assumed by the packaged workflow.
 
 See `../../../docs/codex-agent-memory-and-sessions.md` for the repository-wide convention.

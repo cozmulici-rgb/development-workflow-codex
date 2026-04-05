@@ -270,6 +270,136 @@ class ValidateRepoTests(unittest.TestCase):
         self.assertIn("Persistent per-agent memory is out of scope", readme)
         self.assertIn("Persistent per-agent memory is out of scope", workflow_readme)
 
+    def test_handoff_contract_docs_and_examples_exist(self) -> None:
+        handoff_readme = (REPO_ROOT / "docs" / "handoffs" / "README.md").read_text(encoding="utf-8")
+        planning_example = (
+            REPO_ROOT / "docs" / "handoffs" / "example-feature" / "planning-to-engineering.md"
+        ).read_text(encoding="utf-8")
+        engineering_example = (
+            REPO_ROOT / "docs" / "handoffs" / "example-feature" / "engineering-to-validation.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("docs/handoffs/<feature>/", handoff_readme)
+        self.assertIn("## Metadata", handoff_readme)
+        self.assertIn("## Approved Inputs", handoff_readme)
+        self.assertIn("## Gates And Status", handoff_readme)
+        self.assertIn("# Handoff: Planning to Engineering", planning_example)
+        self.assertIn("# Handoff: Engineering to Validation", engineering_example)
+
+    def test_workflow_references_require_explicit_handoff_packages(self) -> None:
+        workflow_readme = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "README.md"
+        ).read_text(encoding="utf-8")
+        plan_reference = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "plan.md"
+        ).read_text(encoding="utf-8")
+        implement_lead = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "implement-lead.md"
+        ).read_text(encoding="utf-8")
+        validation_lead = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "validation-lead.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("docs/handoffs/", workflow_readme)
+        self.assertIn("planning-to-engineering handoff package", plan_reference)
+        self.assertIn("engineering-to-validation handoff package", implement_lead)
+        self.assertIn("docs/handoffs/<feature>/engineering-to-validation.md", validation_lead)
+
+    def test_context_contract_docs_and_examples_exist(self) -> None:
+        context_readme = (REPO_ROOT / "docs" / "context" / "README.md").read_text(encoding="utf-8")
+        planning_context = (
+            REPO_ROOT / "docs" / "context" / "example-feature" / "planning-context.md"
+        ).read_text(encoding="utf-8")
+        engineering_context = (
+            REPO_ROOT / "docs" / "context" / "example-feature" / "engineering-context.md"
+        ).read_text(encoding="utf-8")
+        validation_context = (
+            REPO_ROOT / "docs" / "context" / "example-feature" / "validation-context.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("docs/context/<feature>/", context_readme)
+        self.assertIn("## Required Sections", context_readme)
+        self.assertIn("## Freshness", context_readme)
+        self.assertIn("# Planning Context: example-feature", planning_context)
+        self.assertIn("# Engineering Context: example-feature", engineering_context)
+        self.assertIn("# Validation Context: example-feature", validation_context)
+
+    def test_workflow_references_require_explicit_context_artifacts(self) -> None:
+        memory_doc = (REPO_ROOT / "docs" / "codex-agent-memory-and-sessions.md").read_text(encoding="utf-8")
+        workflow_readme = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "README.md"
+        ).read_text(encoding="utf-8")
+        plan_reference = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "plan.md"
+        ).read_text(encoding="utf-8")
+        implement_lead = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "implement-lead.md"
+        ).read_text(encoding="utf-8")
+        validation_lead = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "validation-lead.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("docs/context/<feature>/", memory_doc)
+        self.assertIn("docs/context/", workflow_readme)
+        self.assertIn("planning-context.md", plan_reference)
+        self.assertIn("engineering-context.md", implement_lead)
+        self.assertIn("validation-context.md", validation_lead)
+
+    def test_artifact_governance_docs_define_approval_and_freshness_rules(self) -> None:
+        memory_doc = (REPO_ROOT / "docs" / "codex-agent-memory-and-sessions.md").read_text(encoding="utf-8")
+        workflow_readme = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "README.md"
+        ).read_text(encoding="utf-8")
+        status_index = (
+            REPO_ROOT / "docs" / "context" / "example-feature" / "context-status.md"
+        ).read_text(encoding="utf-8")
+        validation_lead = (
+            REPO_ROOT / "skills" / "development-pipeline" / "references" / "validation-lead.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("approved, current, non-superseded durable artifacts", memory_doc)
+        self.assertIn("draft, stale, or superseded durable artifacts", workflow_readme.lower())
+        self.assertIn("## Durable Artifact Index", status_index)
+        self.assertIn("## State Rules", status_index)
+        self.assertIn("## Freshness Rules", status_index)
+        self.assertIn("draft, stale, or superseded", validation_lead)
+
+    def test_context_compiler_docs_and_examples_exist(self) -> None:
+        readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+        agents = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        memory_doc = (REPO_ROOT / "docs" / "codex-agent-memory-and-sessions.md").read_text(encoding="utf-8")
+        compiled_planning = (
+            REPO_ROOT / "docs" / "context" / "example-feature" / "compiled-planning-context.md"
+        ).read_text(encoding="utf-8")
+        compiled_engineering = (
+            REPO_ROOT / "docs" / "context" / "example-feature" / "compiled-engineering-context.md"
+        ).read_text(encoding="utf-8")
+        compiled_validation = (
+            REPO_ROOT / "docs" / "context" / "example-feature" / "compiled-validation-context.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("compile_workflow_context.py", readme)
+        self.assertIn("compile_workflow_context.py", agents)
+        self.assertIn("compiled-*-context.md", memory_doc)
+        self.assertIn("# Compiled Planning Context: example-feature", compiled_planning)
+        self.assertIn("# Compiled Engineering Context: example-feature", compiled_engineering)
+        self.assertIn("# Compiled Validation Context: example-feature", compiled_validation)
+
+    def test_optional_session_recorder_docs_remain_non_contractual(self) -> None:
+        readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+        agents = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        memory_doc = (REPO_ROOT / "docs" / "codex-agent-memory-and-sessions.md").read_text(encoding="utf-8")
+        orchestrator_doc = (REPO_ROOT / "docs" / "orchestrator_agents_teams.md").read_text(encoding="utf-8")
+        boundary_doc = (REPO_ROOT / "docs" / "codex-write-boundary-guard.md").read_text(encoding="utf-8")
+        session_doc = (REPO_ROOT / "docs" / "session-recorder.md").read_text(encoding="utf-8")
+
+        self.assertIn("record_workflow_session.py", readme)
+        self.assertIn("record_workflow_session.py", agents)
+        self.assertIn("non-contractual", memory_doc)
+        self.assertIn("diagnostics aid", orchestrator_doc)
+        self.assertIn("maintainer diagnostics", boundary_doc)
+        self.assertIn("not part of the packaged workflow contract", session_doc)
+
 
 if __name__ == "__main__":
     unittest.main()

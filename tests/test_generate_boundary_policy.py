@@ -100,6 +100,27 @@ class GenerateBoundaryPolicyTests(unittest.TestCase):
             ],
         )
 
+    def test_derive_write_globs_uses_artifact_specific_docs_scopes(self) -> None:
+        with self.patched_module():
+            globs = generate_boundary_policy.derive_write_globs(
+                [
+                    "docs/context/example-feature/planning-context.md",
+                    "docs/handoffs/example-feature/planning-to-engineering.md",
+                    "docs/plan/example-feature/phase-01.md",
+                    "docs/codex-write-boundary-guard.md",
+                ]
+            )
+
+        self.assertEqual(
+            globs,
+            [
+                "docs/context/**",
+                "docs/handoffs/**",
+                "docs/plan/**",
+                "docs/**",
+            ],
+        )
+
     def test_cmd_generate_writes_boundary_files_for_each_phase(self) -> None:
         self._write_phase(
             "phase-01.md",

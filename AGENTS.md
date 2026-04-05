@@ -21,10 +21,14 @@ The repository now provides local Make targets for the core maintenance workflow
 - `make test` runs `python3 -m unittest discover -s tests -t .` for the repo-maintenance script suite
 - `make boundary-check POLICY=<path>` runs `scripts/write_boundary_guard.py verify` against a boundary policy file
 - `make boundary-generate PLAN_DIR=<path>` runs `scripts/generate_boundary_policy.py` to derive policy files from phase plans
+- `python3 scripts/compile_workflow_context.py <feature> --role <planning|engineering|validation>` compiles a deterministic role-specific brief from approved context and handoff artifacts
+- `python3 scripts/record_workflow_session.py --label <name>` records optional local maintainer diagnostics; recorder output is not part of the packaged workflow contract
 - `python3 scripts/validate_repo.py` is the direct entry point when you want script output without `make`
 - `python3 scripts/package_plugin.py` is the direct packaging entry point
 - `python3 scripts/write_boundary_guard.py ...` is the direct write-boundary guard entry point
 - `python3 scripts/generate_boundary_policy.py <plan-dir>` is the direct policy generation entry point
+
+The boundary tooling now preserves narrower workflow-artifact scopes such as `docs/context/**` and `docs/handoffs/**` when they are explicitly listed in approved phase plans.
 
 If a write-boundary verifier is added or updated, document its invocation here and in `README.md`.
 

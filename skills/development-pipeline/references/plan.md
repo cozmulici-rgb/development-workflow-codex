@@ -34,6 +34,8 @@ Shared contract: follow `../../development-pipeline-shared-orchestrator/SKILL.md
 - **Research Document** path (`docs/research/<feature>.md`)
 - **Design Documents** directory (`docs/design/<feature>/`)
 - **Output directory** (`docs/plan/<feature>/`)
+- **Planning context output path** (`docs/context/<feature>/planning-context.md`)
+- **Handoff package output path** (`docs/handoffs/<feature>/planning-to-engineering.md`)
 - **Code standards** — linting rules, layering rules, test conventions, CI constraints
 - **Stack context** — language, framework, test runner
 
@@ -238,3 +240,18 @@ Phase summary:
 
 Ready for human plan review. Do not begin implementation until approved.
 ```
+
+After the plan is approved, produce a planning-to-engineering handoff package under `docs/handoffs/<feature>/` that includes:
+
+- the approved research and design inputs
+- the phase map and current phase to implement first
+- any generated boundary-policy paths required by engineering
+- unresolved risks or human constraints engineering must preserve
+
+Also produce `docs/context/<feature>/planning-context.md` with:
+
+- the durable constraints approved during research, design, and planning
+- the active phase map and current implementation entrypoint
+- any stable boundaries or tradeoffs later stages must preserve
+
+Engineering must not start from planning context that is draft, stale, or superseded. If the latest planning artifacts are not clearly approved and current, stop and escalate before implementation begins.

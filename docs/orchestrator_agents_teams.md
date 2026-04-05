@@ -47,8 +47,28 @@ Each agent has:
 ### Agent Context And Handoffs
 - Persistent per-agent memory is out of scope for this repository
 - Agents rely on the active conversation, the current repo state, and explicit artifacts written by prior phases
-- Durable handoff state should live in repo artifacts such as research docs, design docs, plan directories, boundary policies, implementation handoff packages, and validation outputs
+- Durable workflow state should live in repo artifacts such as research docs, design docs, plan directories, `docs/context/<feature>/` artifacts, boundary policies, `docs/handoffs/<feature>/` packages, and validation outputs
 - If additional state is needed, write it into a named repo artifact instead of assuming an implicit runtime memory layer
+
+The canonical cross-team coordination unit is a handoff package:
+
+- it names the source stage, destination stage, and current status
+- it lists the approved input artifacts the receiver may rely on
+- it records in-scope changes, gate state, open questions, and the next required action
+- it avoids any dependency on hidden session state or local log directories
+
+Artifact-memory files in `docs/context/<feature>/` hold durable facts that remain useful after the immediate handoff is complete:
+
+- planning context captures approved constraints and phase-level expectations
+- engineering context captures durable implementation facts and accepted technical constraints
+- validation context captures durable readiness findings and accepted review outcomes
+- downstream teams should ignore `draft`, stale, or superseded durable artifacts unless a human override is recorded in the active handoff
+
+Compiled briefs in `docs/context/<feature>/compiled-*-context.md` are deterministic, reviewable derivatives of approved artifacts:
+
+- they replace role-specific mental summaries when a compact brief is useful
+- they must be regenerated from approved artifacts rather than hand-edited memory notes
+- they remain optional unless a workflow entrypoint explicitly requires them
 
 ### Skills (Composable Prompts)
 Key shared skills:
@@ -70,7 +90,11 @@ Workers intentionally lack the conversational response skill — they should be 
 ### Session Management
 - The packaged workflow guarantees only artifacts explicitly written into the repo or produced by the current command flow
 - The current conversation is the only guaranteed transient shared context
+- Durable summaries that span multiple stages should be written into `docs/context/<feature>/`
+- Portable stage-to-stage coordination should be written into `docs/handoffs/<feature>/`
+- Trusted downstream coordination should use only approved, current, non-superseded durable artifacts
 - Optional local logs or session directories may exist in the surrounding environment, but they are not part of the plugin contract and must not be relied on by packaged prompts
+- Optional local recording may be useful for maintainer debugging, but it is a diagnostics aid rather than runtime state
 
 ## Model Strategy
 

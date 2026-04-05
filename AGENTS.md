@@ -18,7 +18,7 @@ The repository now provides local Make targets for the core maintenance workflow
 
 - `make validate` runs `scripts/validate_repo.py` to check plugin metadata, marketplace wiring, and skill frontmatter
 - `make package` runs validation and builds a zip archive in `dist/`
-- `make test` runs `python3 -m unittest discover -s tests -t .` for the repo-maintenance script suite
+- `python3 -m unittest discover -s tests -t .` runs the repo-maintenance script suite
 - `make boundary-check POLICY=<path>` runs `scripts/write_boundary_guard.py verify` against a boundary policy file
 - `make boundary-generate PLAN_DIR=<path>` runs `scripts/generate_boundary_policy.py` to derive policy files from phase plans
 - `python3 scripts/compile_workflow_context.py <feature> --role <planning|engineering|validation>` compiles a deterministic role-specific brief from approved context and handoff artifacts
@@ -44,7 +44,7 @@ Use consistent, idiomatic style for the language you introduce. Default expectat
 Adopt an automatic formatter and linter with the first major code addition and commit their config with the codebase.
 
 ## Testing Guidelines
-Use the standard-library `unittest` suite for repo-maintenance code. Run `make test` for script changes, `make validate` for plugin metadata or packaged-skill checks, and `make package` when packaging behavior changes. Do not rely on manual checks alone for script behavior.
+Use the standard-library `unittest` suite for repo-maintenance code. Run `python3 -m unittest discover -s tests -t .` for script changes, `make validate` for plugin metadata or packaged-skill checks, and `make package` when packaging behavior changes. Do not rely on manual checks alone for script behavior.
 
 ## Commit & Pull Request Guidelines
 The current Git history contains a single commit: `Initial commit`. Follow that baseline with short, imperative commit subjects, and prefer focused commits such as `Add CLI skeleton` or `Document contributor workflow`.

@@ -45,6 +45,45 @@ The workflow is organized around three top-level responsibilities:
 - Engineering: implementation against an approved phase plan
 - Validation: review and testing after engineering completes a phase
 
+Text workflow chart:
+
+```text
+User Request
+    |
+    v
+development-pipeline-orchestrator
+    |
+    v
+Planning
+  research -> design -> phase plan
+    |            |           |
+    |            |           +--> docs/plan/<feature>/phase-XX.md
+    |            |           +--> docs/plan/<feature>/boundary.phase-XX.json
+    |            |
+    |            +--------------> docs/context/<feature>/planning-context.md
+    |
+    +---------------------------> docs/handoffs/<feature>/planning-to-engineering.md
+                                   |
+                                   v
+Engineering
+  implement approved phase
+    |
+    +--> code + tests
+    +--> docs/context/<feature>/engineering-context.md
+    +--> docs/context/<feature>/compiled-engineering-context.md
+    +--> docs/handoffs/<feature>/engineering-to-validation.md
+                                   |
+                                   v
+Validation
+  review + test + verdict
+    |
+    +--> docs/context/<feature>/validation-context.md
+    +--> docs/context/<feature>/compiled-validation-context.md
+    |
+    v
+Next action: approve, request fixes, or continue to next phase
+```
+
 Cross-team coordination is carried by explicit handoff packages under `docs/handoffs/<feature>/`. Those packages record approved inputs, current scope, gate status, open questions, and the next required action for the receiving stage.
 Durable cross-stage knowledge is carried by artifact-memory files under `docs/context/<feature>/`. Those files preserve approved facts, constraints, and readiness information that should outlive a single handoff.
 Downstream stages should use only approved, current, non-superseded durable artifacts unless the active handoff records an explicit human override.
@@ -128,7 +167,7 @@ More detail is documented in `docs/codex-write-boundary-guard.md`.
 If you are developing or maintaining this plugin:
 
 - `make validate` checks plugin metadata, marketplace wiring, and skill frontmatter
-- `make test` runs the repository test suite
+- `python3 -m unittest discover -s tests -t .` runs the repository test suite
 - `make package` validates the repo and builds a zip archive in `dist/`
 
 The maintenance scripts use the Python 3 standard library only.

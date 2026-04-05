@@ -13,12 +13,9 @@ ROOT = Path(__file__).resolve().parent.parent
 ROLE_CHOICES = ("planning", "engineering", "validation")
 STATUS_LINE_RE = re.compile(r"^\|\s*Status\s*\|\s*`?([^|`]+?)`?\s*\|$", re.MULTILINE)
 FRESHNESS_LINE_RE = re.compile(r"^\|\s*Freshness\s*\|\s*`?([^|`]+?)`?\s*\|$", re.MULTILINE)
-ARTIFACT_INDEX_ROW_RE = re.compile(
-    r"^\|\s*`(?P<artifact>[^`]+)`\s*\|\s*[^|]*\|\s*`?(?P<status>[^|`]+?)`?\s*\|\s*(?P<freshness>[^|]+?)\s*\|",
-    re.MULTILINE,
-)
 INVALID_FEATURE_PART_RE = re.compile(r"[\\/]")
 UNTRUSTED_STATUSES = {"draft", "superseded", "blocked", "needs-human-review"}
+CURRENT_FRESHNESS = "current"
 
 
 def load_text(path: Path) -> str:
@@ -118,19 +115,38 @@ def read_context_status_index(path: Path) -> dict[str, dict[str, str]]:
     if not path.is_file():
         return index
 
-    for match in ARTIFACT_INDEX_ROW_RE.finditer(load_text(path)):
-        index[match.group("artifact")] = {
-            "status": match.group("status").strip().lower(),
-            "freshness": match.group("freshness").strip().lower(),
+    for raw_line in load_text(path).splitlines():
+        line = raw_line.strip()
+        if not line.startswith("| `"):
+            continue
+
+        parts = [part.strip() for part in line.strip("|").split("|")]
+        if len(parts) < 5:
+            continue
+
+        artifact = parts[0].strip("`").strip()
+        if not artifact:
+            continue
+
+        index[artifact] = {
+            "status": parts[2].strip("`").strip().lower(),
+            "freshness": parts[3].strip("`").strip().lower(),
+            "superseded_by": parts[4].strip("`").strip(),
         }
     return index
 
 
-def is_stale_freshness(freshness: str | None) -> bool:
+def is_current_freshness(freshness: str | None) -> bool:
     if freshness is None:
+        return True
+    return freshness.strip().lower() == CURRENT_FRESHNESS
+
+
+def is_superseded_value(value: str | None) -> bool:
+    if value is None:
         return False
-    normalized = freshness.strip().lower()
-    return "stale" in normalized
+    normalized = value.strip().lower()
+    return normalized not in {"", "no", "n/a", "none"}
 
 
 def validate_input_state(
@@ -156,7 +172,7 @@ def validate_input_state(
         )
 
     freshness = read_freshness_value(path)
-    if is_stale_freshness(freshness):
+    if not is_current_freshness(freshness):
         raise ValueError(
             f"{relative(path)} is not a trusted input for {role}: freshness is '{freshness}'"
         )
@@ -172,9 +188,13 @@ def validate_input_state(
         raise ValueError(
             f"{relative(path)} is not a trusted input for {role}: status index is '{indexed['status']}'"
         )
-    if is_stale_freshness(indexed["freshness"]):
+    if not is_current_freshness(indexed["freshness"]):
         raise ValueError(
             f"{relative(path)} is not a trusted input for {role}: freshness index is '{indexed['freshness']}'"
+        )
+    if is_superseded_value(indexed.get("superseded_by")):
+        raise ValueError(
+            f"{relative(path)} is not a trusted input for {role}: superseded by '{indexed['superseded_by']}'"
         )
 
 

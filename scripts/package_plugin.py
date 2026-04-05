@@ -17,6 +17,7 @@ INCLUDE_PATHS = (
     Path(".codex-plugin"),
     Path(".agents"),
     Path("docs"),
+    Path("scripts"),
     Path("skills"),
     Path("LICENSE"),
     Path("README.md"),

@@ -172,6 +172,23 @@ class CompileWorkflowContextTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "freshness index is 'stale: refresh required'"):
                 compile_workflow_context.compile_role_context("example-feature", "engineering")
 
+    def test_compile_role_context_rejects_non_current_freshness_from_status_index(self) -> None:
+        context_status = self.root / "docs" / "context" / "example-feature" / "context-status.md"
+        context_status.write_text(
+            "# Context Status\n\n"
+            "## Durable Artifact Index\n\n"
+            "| Artifact | Role | Status | Freshness | Superseded By | Notes |\n"
+            "|----------|------|--------|-----------|---------------|-------|\n"
+            "| `docs/context/example-feature/planning-context.md` | Planning | `approved` | Current | `No` | Safe |\n"
+            "| `docs/context/example-feature/engineering-context.md` | Engineering | `active` | Pending final verdict | `No` | Provisional |\n"
+            "| `docs/handoffs/example-feature/planning-to-engineering.md` | Planning | `ready` | Current | `No` | Safe |\n",
+            encoding="utf-8",
+        )
+
+        with self.patched_module():
+            with self.assertRaisesRegex(ValueError, "freshness index is 'pending final verdict'"):
+                compile_workflow_context.compile_role_context("example-feature", "engineering")
+
     def test_compile_role_context_rejects_needs_human_review_from_status_index(self) -> None:
         context_status = self.root / "docs" / "context" / "example-feature" / "context-status.md"
         context_status.write_text(
@@ -187,6 +204,26 @@ class CompileWorkflowContextTests(unittest.TestCase):
 
         with self.patched_module():
             with self.assertRaisesRegex(ValueError, "status index is 'needs-human-review'"):
+                compile_workflow_context.compile_role_context("example-feature", "engineering")
+
+    def test_compile_role_context_rejects_superseded_artifact_from_status_index(self) -> None:
+        context_status = self.root / "docs" / "context" / "example-feature" / "context-status.md"
+        context_status.write_text(
+            "# Context Status\n\n"
+            "## Durable Artifact Index\n\n"
+            "| Artifact | Role | Status | Freshness | Superseded By | Notes |\n"
+            "|----------|------|--------|-----------|---------------|-------|\n"
+            "| `docs/context/example-feature/planning-context.md` | Planning | `approved` | Current | `docs/context/example-feature/planning-context-v2.md` | Replaced |\n"
+            "| `docs/context/example-feature/engineering-context.md` | Engineering | `active` | Current | `No` | Safe |\n"
+            "| `docs/handoffs/example-feature/planning-to-engineering.md` | Planning | `ready` | Current | `No` | Safe |\n",
+            encoding="utf-8",
+        )
+
+        with self.patched_module():
+            with self.assertRaisesRegex(
+                ValueError,
+                "superseded by 'docs/context/example-feature/planning-context-v2.md'",
+            ):
                 compile_workflow_context.compile_role_context("example-feature", "engineering")
 
     def test_compile_role_context_rejects_feature_traversal(self) -> None:

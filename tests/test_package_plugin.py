@@ -4,6 +4,7 @@ import contextlib
 import json
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -35,6 +36,8 @@ class PackagePluginTests(unittest.TestCase):
             },
         )
         self._write("scripts/validate_repo.py", "print('stub validator')\n")
+        self._write("scripts/compile_workflow_context.py", "print('compile')\n")
+        self._write("scripts/record_workflow_session.py", "print('record')\n")
 
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
@@ -80,6 +83,11 @@ class PackagePluginTests(unittest.TestCase):
         archive_path = self.root / "dist" / "example-plugin-0.1.0.zip"
         self.assertEqual(exit_code, 0)
         self.assertTrue(archive_path.is_file())
+        with zipfile.ZipFile(archive_path) as archive:
+            names = set(archive.namelist())
+        self.assertIn("example-plugin-0.1.0/scripts/compile_workflow_context.py", names)
+        self.assertIn("example-plugin-0.1.0/scripts/record_workflow_session.py", names)
+        self.assertIn("example-plugin-0.1.0/scripts/validate_repo.py", names)
 
 
 if __name__ == "__main__":

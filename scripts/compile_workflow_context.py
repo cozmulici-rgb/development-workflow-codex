@@ -18,6 +18,7 @@ ARTIFACT_INDEX_ROW_RE = re.compile(
     re.MULTILINE,
 )
 INVALID_FEATURE_PART_RE = re.compile(r"[\\/]")
+UNTRUSTED_STATUSES = {"draft", "superseded", "blocked", "needs-human-review"}
 
 
 def load_text(path: Path) -> str:
@@ -136,7 +137,11 @@ def validate_input_state(
         return
 
     status = read_status_value(path)
-    if status in {"draft", "superseded", "blocked"}:
+    if status is None:
+        raise ValueError(
+            f"{relative(path)} is not a trusted input for {role}: missing required status metadata"
+        )
+    if status in UNTRUSTED_STATUSES:
         raise ValueError(
             f"{relative(path)} is not a trusted input for {role}: status is '{status}'"
         )
@@ -154,7 +159,7 @@ def validate_input_state(
     if indexed is None:
         return
 
-    if indexed["status"] in {"draft", "superseded", "blocked"}:
+    if indexed["status"] in UNTRUSTED_STATUSES:
         raise ValueError(
             f"{relative(path)} is not a trusted input for {role}: status index is '{indexed['status']}'"
         )

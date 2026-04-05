@@ -24,7 +24,7 @@ def ensure_output_dir(path: Path, *, allow_in_repo: bool = False) -> Path:
 
 
 def make_payload(args: argparse.Namespace) -> dict[str, object]:
-    created_at = datetime.now(UTC).replace(microsecond=0).isoformat()
+    created_at = datetime.now(UTC).isoformat(timespec="microseconds")
     return {
         "version": 1,
         "contractual": False,

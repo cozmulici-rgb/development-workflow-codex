@@ -4,6 +4,7 @@ import json
 import tempfile
 import unittest
 from argparse import Namespace
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import patch
 
@@ -84,6 +85,52 @@ class RecordWorkflowSessionTests(unittest.TestCase):
 
         self.assertTrue(path.is_file())
         self.assertIn(inside_repo.resolve(), path.parents)
+
+    def test_record_session_preserves_multiple_same_second_recordings(self) -> None:
+        first = datetime(2026, 4, 4, 12, 0, 0, 123456, tzinfo=UTC)
+        second = datetime(2026, 4, 4, 12, 0, 0, 789012, tzinfo=UTC)
+
+        with patch.object(record_workflow_session, "ROOT", self.repo_root):
+            with patch.object(
+                record_workflow_session,
+                "datetime",
+                type("FakeDateTime", (), {"now": staticmethod(lambda tz: first)}),
+            ):
+                path_one = record_workflow_session.record_session(
+                    Namespace(
+                        label="phase-06",
+                        feature=None,
+                        output_dir=str(self.outside_dir),
+                        allow_inside_repo=False,
+                        note=[],
+                        prompt=[],
+                        tool_action=[],
+                        output=[],
+                    )
+                )
+
+            with patch.object(
+                record_workflow_session,
+                "datetime",
+                type("FakeDateTime", (), {"now": staticmethod(lambda tz: second)}),
+            ):
+                path_two = record_workflow_session.record_session(
+                    Namespace(
+                        label="phase-06",
+                        feature=None,
+                        output_dir=str(self.outside_dir),
+                        allow_inside_repo=False,
+                        note=[],
+                        prompt=[],
+                        tool_action=[],
+                        output=[],
+                    )
+                )
+
+        self.assertNotEqual(path_one, path_two)
+        self.assertTrue(path_one.is_file())
+        self.assertTrue(path_two.is_file())
+        self.assertNotEqual(path_one.read_text(encoding="utf-8"), path_two.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

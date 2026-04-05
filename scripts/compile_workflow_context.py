@@ -12,6 +12,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ROLE_CHOICES = ("planning", "engineering", "validation")
 STATUS_LINE_RE = re.compile(r"^\|\s*Status\s*\|\s*`?([^|`]+?)`?\s*\|$", re.MULTILINE)
+FRESHNESS_LINE_RE = re.compile(r"^\|\s*Freshness\s*\|\s*`?([^|`]+?)`?\s*\|$", re.MULTILINE)
+ARTIFACT_INDEX_ROW_RE = re.compile(
+    r"^\|\s*`(?P<artifact>[^`]+)`\s*\|\s*[^|]*\|\s*`?(?P<status>[^|`]+?)`?\s*\|\s*(?P<freshness>[^|]+?)\s*\|",
+    re.MULTILINE,
+)
+INVALID_FEATURE_PART_RE = re.compile(r"[\\/]")
 
 
 def load_text(path: Path) -> str:
@@ -36,6 +42,26 @@ def read_status_value(path: Path) -> str | None:
     if not match:
         return None
     return match.group(1).strip().lower()
+
+
+def read_freshness_value(path: Path) -> str | None:
+    if not path.is_file():
+        return None
+    match = FRESHNESS_LINE_RE.search(load_text(path))
+    if not match:
+        return None
+    return match.group(1).strip().lower()
+
+
+def validate_feature_name(feature: str) -> str:
+    normalized = feature.strip()
+    if not normalized:
+        raise ValueError("Feature name must not be empty")
+    if normalized in {".", ".."} or INVALID_FEATURE_PART_RE.search(normalized) or ".." in normalized:
+        raise ValueError(
+            "Feature name must be a single directory name under docs/context/<feature>"
+        )
+    return normalized
 
 
 def feature_context_dir(feature: str) -> Path:
@@ -77,7 +103,32 @@ def role_output(feature: str, role: str) -> Path:
     return feature_context_dir(feature) / f"compiled-{role}-context.md"
 
 
-def validate_input_state(path: Path, role: str) -> None:
+def read_context_status_index(path: Path) -> dict[str, dict[str, str]]:
+    index: dict[str, dict[str, str]] = {}
+    if not path.is_file():
+        return index
+
+    for match in ARTIFACT_INDEX_ROW_RE.finditer(load_text(path)):
+        index[match.group("artifact")] = {
+            "status": match.group("status").strip().lower(),
+            "freshness": match.group("freshness").strip().lower(),
+        }
+    return index
+
+
+def is_stale_freshness(freshness: str | None) -> bool:
+    if freshness is None:
+        return False
+    normalized = freshness.strip().lower()
+    return "stale" in normalized
+
+
+def validate_input_state(
+    path: Path,
+    role: str,
+    *,
+    context_status_index: dict[str, dict[str, str]] | None = None,
+) -> None:
     if not path.is_file():
         raise ValueError(f"Missing required artifact for {role}: {relative(path)}")
 
@@ -88,6 +139,28 @@ def validate_input_state(path: Path, role: str) -> None:
     if status in {"draft", "superseded", "blocked"}:
         raise ValueError(
             f"{relative(path)} is not a trusted input for {role}: status is '{status}'"
+        )
+
+    freshness = read_freshness_value(path)
+    if is_stale_freshness(freshness):
+        raise ValueError(
+            f"{relative(path)} is not a trusted input for {role}: freshness is '{freshness}'"
+        )
+
+    if context_status_index is None:
+        return
+
+    indexed = context_status_index.get(relative(path))
+    if indexed is None:
+        return
+
+    if indexed["status"] in {"draft", "superseded", "blocked"}:
+        raise ValueError(
+            f"{relative(path)} is not a trusted input for {role}: status index is '{indexed['status']}'"
+        )
+    if is_stale_freshness(indexed["freshness"]):
+        raise ValueError(
+            f"{relative(path)} is not a trusted input for {role}: freshness index is '{indexed['freshness']}'"
         )
 
 
@@ -143,10 +216,12 @@ def render_brief(feature_name: str, role: str, inputs: list[Path]) -> str:
 
 
 def compile_role_context(feature: str, role: str, output: Path | None = None) -> Path:
+    feature = validate_feature_name(feature)
     ensure_repo_path(feature_context_dir(feature), "Feature directory")
     inputs = role_inputs(feature, role)
+    context_status_index = read_context_status_index(feature_context_dir(feature) / "context-status.md")
     for path in inputs:
-        validate_input_state(path, role)
+        validate_input_state(path, role, context_status_index=context_status_index)
 
     destination = ensure_repo_path(output if output is not None else role_output(feature, role), "Output path")
     destination.parent.mkdir(parents=True, exist_ok=True)

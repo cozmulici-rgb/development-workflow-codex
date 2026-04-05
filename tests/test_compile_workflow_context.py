@@ -81,6 +81,39 @@ class CompileWorkflowContextTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "not a trusted input"):
                 compile_workflow_context.compile_role_context("example-feature", "validation")
 
+    def test_compile_role_context_rejects_stale_freshness_in_artifact(self) -> None:
+        engineering_context = self.root / "docs" / "context" / "example-feature" / "engineering-context.md"
+        engineering_context.write_text(
+            "# Engineering Context\n\n## Status\n\n| Field | Value |\n|-------|-------|\n| Status | `active` |\n| Freshness | `stale` |\n",
+            encoding="utf-8",
+        )
+
+        with self.patched_module():
+            with self.assertRaisesRegex(ValueError, "freshness is 'stale'"):
+                compile_workflow_context.compile_role_context("example-feature", "engineering")
+
+    def test_compile_role_context_rejects_stale_freshness_from_status_index(self) -> None:
+        context_status = self.root / "docs" / "context" / "example-feature" / "context-status.md"
+        context_status.write_text(
+            "# Context Status\n\n"
+            "## Durable Artifact Index\n\n"
+            "| Artifact | Role | Status | Freshness | Superseded By | Notes |\n"
+            "|----------|------|--------|-----------|---------------|-------|\n"
+            "| `docs/context/example-feature/planning-context.md` | Planning | `approved` | Current | `No` | Safe |\n"
+            "| `docs/context/example-feature/engineering-context.md` | Engineering | `active` | stale: refresh required | `No` | Outdated |\n"
+            "| `docs/handoffs/example-feature/planning-to-engineering.md` | Planning | `ready` | Current | `No` | Safe |\n",
+            encoding="utf-8",
+        )
+
+        with self.patched_module():
+            with self.assertRaisesRegex(ValueError, "freshness index is 'stale: refresh required'"):
+                compile_workflow_context.compile_role_context("example-feature", "engineering")
+
+    def test_compile_role_context_rejects_feature_traversal(self) -> None:
+        with self.patched_module():
+            with self.assertRaisesRegex(ValueError, "single directory name"):
+                compile_workflow_context.compile_role_context("../plan/example-feature", "planning")
+
     def test_compile_role_context_supports_explicit_output_path(self) -> None:
         output_path = self.root / "docs" / "context" / "example-feature" / "custom-output.md"
 
